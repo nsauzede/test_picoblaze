@@ -17,7 +17,7 @@ ADDRESS 000
 coldstart:
 	call delay_1ms				; give time to external logic to settle..
 
-	load data,CHAR_B
+	load data,CHAR_A
 	output data,uart_port
 main:
 	load data,CHAR_GREATER
