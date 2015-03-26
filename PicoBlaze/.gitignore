@@ -1,3 +1,5 @@
 syntax: glob
 
 rom.log
+rom.mem
+rom.vhd
