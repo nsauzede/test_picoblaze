@@ -1,7 +1,11 @@
 ; Important : each instruction executes in 2 cycles = Tclk*2
 ;CONSTANT delay_1us_constant,18		; 2+4*A+2=100 => A=0x18 for clk=100MHz
 CONSTANT delay_1us_constant,0b		; 2+4*A+2=100 => A=0x0b for clk=48MHz
+
 CONSTANT uart_port,80
+CONSTANT spi_clk_div_port,F4
+CONSTANT spi_transmit_port,F2
+CONSTANT spi_cs_ctl_port,F0
 
 CONSTANT UARTavailable,01
 
@@ -36,6 +40,12 @@ ret_main:
 	jump main
 
 quest:
+	load dummy,00
+	output dummy,spi_clk_div_port
+	load dummy,fe
+	output dummy,spi_cs_ctl_port
+	load dummy,55
+	output dummy,spi_transmit_port
 	load dummy,CHAR_EXCLA
 	output dummy,uart_port
 	call crlf

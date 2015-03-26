@@ -59,6 +59,16 @@ signal hard_reset : std_logic;
 
 signal clk2 : std_logic;
 
+signal buttons : STD_LOGIC_VECTOR (3 downto 0);
+signal leds : STD_LOGIC_VECTOR (3 downto 0);
+signal out_spi : STD_LOGIC_VECTOR (7 downto 0);
+
+	signal spi_clk : std_logic;
+	signal spi_csn : std_logic;
+	signal spi_mosi : std_logic;
+	signal spi_miso : std_logic;
+	signal spimaster0_cs : std_logic;
+   SIGNAL wspi         : std_logic;
 begin
 --DCM freq => synthesis freq
 --32 => 100
@@ -80,8 +90,7 @@ begin
 			clkin => clk,
 			clk0 => clk2
 	);
-	w1b(1) <= 'Z';
-	hard_reset <= w1b(1);
+	hard_reset <= buttons(0);
 	reset <= proc_reset or hard_reset;
 	pico0: entity work.kcpsm3
     Port map(
@@ -98,7 +107,7 @@ begin
 		clk => clk2
 	);
 	read_buffer <= read_strobe;
-	write_buffer <= write_strobe;
+	write_buffer <= write_strobe when port_id=x"80" else '0';
 	en_16_x_baud <= '1';
 --	process(clk2) begin
 --		if rising_edge(clk2) then
@@ -150,4 +159,39 @@ begin
 		proc_reset => proc_reset,
 		clk => clk2
 	);
+	butled0: entity work.wingbutled
+	Port map(
+		io => w1b(7 downto 0),
+		buttons => buttons,
+		leds => leds
+	);
+	wspi <= write_strobe;
+	spimaster0_cs <= '1' when port_id(7 downto 3)="11110" else '0';	-- spi selected with port 0xF? (with ?=[0-4])
+	spi_master0 : entity work.spi_master
+	port map (
+		clk => clk2,
+		reset => reset,
+		cpu_address => port_id(2 downto 0),
+		cpu_wait => open,
+		data_in => out_port,
+		data_out => open,
+		enable => spimaster0_cs,
+		req_read => '0',
+		req_write => wspi,
+
+		slave_cs => spi_csn,
+		slave_clk => spi_clk,
+		slave_mosi => spi_mosi,
+		slave_miso => spi_miso
+	);
+	spi_slave0 : entity work.spi_slave
+	Port map( 
+		clk => clk2,
+		SCK => spi_clk,
+		MOSI => spi_mosi,
+		MISO => spi_miso,
+		SSEL => spi_csn,
+		out_port => out_spi
+	);
+	leds <= out_spi(3 downto 0);
 end Behavioral;
