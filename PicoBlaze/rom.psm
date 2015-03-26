@@ -1,0 +1,89 @@
+; Important : each instruction executes in 2 cycles = Tclk*2
+;CONSTANT delay_1us_constant,18		; 2+4*A+2=100 => A=0x18 for clk=100MHz
+CONSTANT delay_1us_constant,0b		; 2+4*A+2=100 => A=0x0b for clk=48MHz
+CONSTANT uart_port,80
+
+CONSTANT UARTavailable,01
+
+NAMEREG s0,reg0
+NAMEREG s1,reg1
+NAMEREG s2,reg2
+NAMEREG s3,reg3
+NAMEREG s4,reg4
+NAMEREG sE,dummy
+NAMEREG sF,data
+
+ADDRESS 000
+coldstart:
+	call delay_1ms				; give time to external logic to settle..
+
+	load data,CHAR_B
+	output data,uart_port
+main:
+	load data,CHAR_GREATER
+	output data,uart_port
+	load data,00
+	ENABLE INTERRUPT
+loop:
+	test data,ff
+	jump Z,loop
+echo:
+	output data,uart_port
+	call crlf
+	compare data,CHAR_QUEST
+	jump Z,quest
+ret_main:
+	jump main
+
+quest:
+	load dummy,CHAR_EXCLA
+	output dummy,uart_port
+	call crlf
+	jump ret_main
+	
+crlf:
+	load dummy,CHAR_CR
+	output dummy,uart_port
+	load dummy,CHAR_LF
+	output dummy,uart_port
+	return
+
+delay_1us: LOAD reg0,delay_1us_constant	; routine takes 2+4*A+2 cycles
+_wait_1us: SUB reg0,01			; (2+4*A+2)*Tclk=10e-6s => A=(Fclk/10e6-4)/4
+	JUMP NZ,_wait_1us			; => A=7 for Fclk=32MHz
+	RETURN
+delay_40us: LOAD reg1,22		; routine takes 2+(2+(4+4*A)+4)*B+2 cycles
+_wait_40us: CALL delay_1us		; (2+(2+(4+4*A)+4)*B+2)*Tclk=40e-6s
+	SUB reg1,01					; => B=(Fclk/25000-4)/(10+4*A)=33.578~=34=0x22
+	JUMP NZ,_wait_40us
+	RETURN
+delay_1ms: LOAD reg2,19			;25 x 40us = 1ms
+_wait_1ms: CALL delay_40us		; 1000000=A*40000+(2+3A)*62.5
+	SUB reg2,01					; A=(1000000-2*62.5)/(40000+3*62.5)
+	JUMP NZ,_wait_1ms			; A=24.880~=25=0x19
+	RETURN
+delay_20ms: LOAD reg3,14			;20 x 1ms = 20ms  (20=0x14)
+_wait_20ms: CALL delay_1ms
+	SUB reg3,01
+	JUMP NZ,_wait_20ms
+	RETURN
+delay_1s: LOAD reg4,32				;50 x 20ms = 1000ms (50=0x32)
+_wait_1s: CALL delay_20ms
+	SUB reg4,01
+	JUMP NZ,_wait_1s
+	RETURN
+
+isr:
+	input data,uart_port
+	returni DISABLE
+
+ADDRESS 3ff
+	jump isr
+
+CONSTANT CHAR_A,41
+CONSTANT CHAR_B,42
+CONSTANT CHAR_GREATER,3E
+CONSTANT CHAR_EXCLA,21
+CONSTANT CHAR_QUEST,3f
+CONSTANT CHAR_LF,0a
+CONSTANT CHAR_CR,0d
