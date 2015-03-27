@@ -21,34 +21,51 @@ ADDRESS 000
 coldstart:
 	call delay_1ms				; give time to external logic to settle..
 
-	load data,CHAR_A
-	output data,uart_port
+	load dummy,CHAR_A
+	output dummy,uart_port
 main:
-	load data,CHAR_GREATER
-	output data,uart_port
-	load data,00
-	ENABLE INTERRUPT
-loop:
-	test data,ff
-	jump Z,loop
-echo:
-	output data,uart_port
-	call crlf
+	load dummy,CHAR_GREATER
+	output dummy,uart_port
+	call getbyte
+	compare data,CHAR_s
+	jump Z,spi_out
 	compare data,CHAR_QUEST
-	jump Z,quest
+	jump Z,help
 ret_main:
+	call crlf
 	jump main
 
-quest:
+spi_out:
 	load dummy,00
 	output dummy,spi_clk_div_port
 	load dummy,fe
 	output dummy,spi_cs_ctl_port
-	load dummy,55
-	output dummy,spi_transmit_port
-	load dummy,CHAR_EXCLA
+	load dummy,CHAR_EQUAL
 	output dummy,uart_port
+	call getbyte
+	output data,spi_transmit_port
+	jump ret_main
+	
+help:
 	call crlf
+	load dummy,CHAR_s
+	output dummy,uart_port
+	load dummy,CHAR_SPACE
+	output dummy,uart_port
+	load dummy,CHAR_s
+	output dummy,uart_port
+	load dummy,CHAR_p
+	output dummy,uart_port
+	load dummy,CHAR_i
+	output dummy,uart_port
+	load dummy,CHAR_UNDER
+	output dummy,uart_port
+	load dummy,CHAR_o
+	output dummy,uart_port
+	load dummy,CHAR_u
+	output dummy,uart_port
+	load dummy,CHAR_t
+	output dummy,uart_port
 	jump ret_main
 	
 crlf:
@@ -56,6 +73,15 @@ crlf:
 	output dummy,uart_port
 	load dummy,CHAR_LF
 	output dummy,uart_port
+	return
+
+getbyte:
+	load data,00
+	ENABLE INTERRUPT
+loop:
+	test data,ff
+	jump Z,loop
+	output data,uart_port
 	return
 
 delay_1us: LOAD reg0,delay_1us_constant	; routine takes 2+4*A+2 cycles
@@ -92,6 +118,15 @@ ADDRESS 3ff
 
 CONSTANT CHAR_A,41
 CONSTANT CHAR_B,42
+CONSTANT CHAR_s,73
+CONSTANT CHAR_p,70
+CONSTANT CHAR_i,69
+CONSTANT CHAR_o,6f
+CONSTANT CHAR_u,75
+CONSTANT CHAR_t,74
+CONSTANT CHAR_UNDER,5f
+CONSTANT CHAR_SPACE,20
+CONSTANT CHAR_EQUAL,3d
 CONSTANT CHAR_GREATER,3E
 CONSTANT CHAR_EXCLA,21
 CONSTANT CHAR_QUEST,3f
