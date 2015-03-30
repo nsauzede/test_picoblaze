@@ -45,6 +45,8 @@ signal interrupt : std_logic;
 signal en_16_x_baud : std_logic := '0';
 signal read_buffer : std_logic;
 signal write_buffer : std_logic;
+signal buffer_full : std_logic;
+signal in_port_uart : std_logic_vector(7 downto 0);
 
 signal address : std_logic_vector(9 downto 0);
 signal instruction : std_logic_vector(17 downto 0);
@@ -106,7 +108,36 @@ begin
 		reset => reset,
 		clk => clk2
 	);
-	read_buffer <= read_strobe;
+--	in_port <= in_port_uart when port_id=x"80" else "0000000" & buffer_full;
+	inputs : process(clk2)
+	begin
+		if rising_edge(clk2) then
+			case port_id(7 downto 0) is
+				when x"80" => in_port <= in_port_uart;
+					read_buffer <= read_strobe;
+				when x"81" => in_port <= "0000000" & buffer_full;
+				when others =>	in_port <= (others => 'X');
+			end case;
+		end if;
+	end process;
+
+	outputs : process(clk2)
+	begin
+		if rising_edge(clk2) then
+			if port_id(7 downto 3)="11110" then	-- spi selected with port 0xF? (with ?=[0-4])
+				spimaster0_cs <= '1';
+			else
+				spimaster0_cs <= '0';
+			end if;
+--			if port_id=x"80" then
+--				write_buffer <= write_strobe;
+--			else
+--				write_buffer <= '0';
+--			end if;
+		end if;
+	end process;
+
+--	read_buffer <= read_strobe;
 	write_buffer <= write_strobe when port_id=x"80" else '0';
 	en_16_x_baud <= '1';
 --	process(clk2) begin
@@ -128,7 +159,7 @@ begin
 	uart_rx0: entity work.uart_rx
     Port map(
 		serial_in => rx,
-		data_out => in_port,
+		data_out => in_port_uart,
 		read_buffer => read_buffer,
 		reset_buffer => '0',
 --		en_16_x_baud => '1',
@@ -147,7 +178,7 @@ begin
 --		en_16_x_baud => '1',
 		en_16_x_baud => en_16_x_baud,
 		serial_out => tx,
-		buffer_full => open,
+		buffer_full => buffer_full,
 		buffer_half_full => open,
 --		clk => en_16_x_baud
 		clk => clk2
@@ -166,7 +197,7 @@ begin
 		leds => leds
 	);
 	wspi <= write_strobe;
-	spimaster0_cs <= '1' when port_id(7 downto 3)="11110" else '0';	-- spi selected with port 0xF? (with ?=[0-4])
+--	spimaster0_cs <= '1' when port_id(7 downto 3)="11110" else '0';	-- spi selected with port 0xF? (with ?=[0-4])
 	spi_master0 : entity work.spi_master
 	port map (
 		clk => clk2,

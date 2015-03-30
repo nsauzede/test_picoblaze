@@ -2,6 +2,7 @@
 ;CONSTANT delay_1us_constant,18		; 2+4*A+2=100 => A=0x18 for clk=100MHz
 CONSTANT delay_1us_constant,0b		; 2+4*A+2=100 => A=0x0b for clk=48MHz
 
+CONSTANT uart_status_port,81
 CONSTANT uart_port,80
 CONSTANT spi_clk_div_port,F4
 CONSTANT spi_transmit_port,F2
@@ -21,11 +22,31 @@ ADDRESS 000
 coldstart:
 	call delay_1ms				; give time to external logic to settle..
 
-	load dummy,CHAR_A
-	output dummy,uart_port
+	call crlf
+	load s0,CHAR_EXCLA
+	call putbyte
+	load s0,CHAR_r
+	call putbyte
+	load s0,CHAR_e
+	call putbyte
+	load s0,CHAR_s
+	call putbyte
+	load s0,CHAR_e
+	call putbyte
+	load s0,CHAR_t
+	call putbyte
+	load s0,CHAR_EXCLA
+	call putbyte
+	call crlf
 main:
-	load dummy,CHAR_GREATER
-	output dummy,uart_port
+	load s0,CHAR_m
+	call putbyte
+	load s0,CHAR_o
+	call putbyte
+	load s0,CHAR_n
+	call putbyte
+	load s0,CHAR_GREATER
+	call putbyte
 	call getbyte
 	compare data,CHAR_s
 	jump Z,spi_out
@@ -40,39 +61,57 @@ spi_out:
 	output dummy,spi_clk_div_port
 	load dummy,fe
 	output dummy,spi_cs_ctl_port
-	load dummy,CHAR_EQUAL
-	output dummy,uart_port
+	load s0,CHAR_EQUAL
+	call putbyte
 	call getbyte
 	output data,spi_transmit_port
 	jump ret_main
 	
 help:
 	call crlf
-	load dummy,CHAR_s
-	output dummy,uart_port
-	load dummy,CHAR_SPACE
-	output dummy,uart_port
-	load dummy,CHAR_s
-	output dummy,uart_port
-	load dummy,CHAR_p
-	output dummy,uart_port
-	load dummy,CHAR_i
-	output dummy,uart_port
-	load dummy,CHAR_UNDER
-	output dummy,uart_port
-	load dummy,CHAR_o
-	output dummy,uart_port
-	load dummy,CHAR_u
-	output dummy,uart_port
-	load dummy,CHAR_t
-	output dummy,uart_port
+	load s0,CHAR_QUEST
+	call putbyte
+	call space
+	load s0,CHAR_h
+	call putbyte
+	load s0,CHAR_e
+	call putbyte
+	load s0,CHAR_l
+	call putbyte
+	load s0,CHAR_p
+	call putbyte
+
+	call crlf
+	load s0,CHAR_s
+	call putbyte
+	call space
+	load s0,CHAR_s
+	call putbyte
+	load s0,CHAR_p
+	call putbyte
+	load s0,CHAR_i
+	call putbyte
+	load s0,CHAR_UNDER
+	call putbyte
+	load s0,CHAR_o
+	call putbyte
+	load s0,CHAR_u
+	call putbyte
+	load s0,CHAR_t
+	call putbyte
+
 	jump ret_main
 	
 crlf:
-	load dummy,CHAR_CR
-	output dummy,uart_port
-	load dummy,CHAR_LF
-	output dummy,uart_port
+	load s0,CHAR_CR
+	call putbyte
+	load s0,CHAR_LF
+	call putbyte
+	return
+
+space:
+	load s0,CHAR_SPACE
+	call putbyte
 	return
 
 getbyte:
@@ -81,7 +120,16 @@ getbyte:
 loop:
 	test data,ff
 	jump Z,loop
-	output data,uart_port
+;	output data,uart_port
+	load s0,data
+;	call putbyte
+;	return
+; pass-through to putbyte here to spare 2 words
+putbyte:
+	input dummy,uart_status_port
+	test dummy,01
+	jump NZ,putbyte
+	output s0,uart_port
 	return
 
 delay_1us: LOAD reg0,delay_1us_constant	; routine takes 2+4*A+2 cycles
@@ -118,12 +166,18 @@ ADDRESS 3ff
 
 CONSTANT CHAR_A,41
 CONSTANT CHAR_B,42
-CONSTANT CHAR_s,73
-CONSTANT CHAR_p,70
+CONSTANT CHAR_e,65
+CONSTANT CHAR_h,68
 CONSTANT CHAR_i,69
+CONSTANT CHAR_l,6c
+CONSTANT CHAR_m,6d
+CONSTANT CHAR_n,6e
 CONSTANT CHAR_o,6f
-CONSTANT CHAR_u,75
+CONSTANT CHAR_p,70
+CONSTANT CHAR_r,72
+CONSTANT CHAR_s,73
 CONSTANT CHAR_t,74
+CONSTANT CHAR_u,75
 CONSTANT CHAR_UNDER,5f
 CONSTANT CHAR_SPACE,20
 CONSTANT CHAR_EQUAL,3d
