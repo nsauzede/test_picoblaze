@@ -7,3 +7,6 @@ an 8-bit value to the SPI slave, that displays it on a ButtonLed wing
 
 The PicoBlaze asm source is compiled with picoasm :
 http://marksix.home.xs4all.nl/picoasm.html
+
+The bitstream live update technique is based on :
+http://www.labbookpages.co.uk/fpgas/picoBlaze.html
