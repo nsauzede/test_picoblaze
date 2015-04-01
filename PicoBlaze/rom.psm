@@ -17,7 +17,6 @@ NAMEREG s2,reg2
 NAMEREG s3,reg3
 NAMEREG s4,reg4
 
-NAMEREG sD,dummy2
 NAMEREG sE,dummy
 NAMEREG sF,data
 
@@ -66,50 +65,14 @@ spi_out:
 	output dummy,spi_cs_ctl_port
 	load s0,CHAR_EQUAL
 	call putc
-	call get1hex
+;	call get1hex
+	call get2hex
 	output data,spi_transmit_port
 	load s0,CHAR_EQUAL
 	call putc
 	input s0,f0
 	call put2hex
 	jump ret_main
-
-; input : s0=byte to print as hex
-put2hex:
-	load s1,s0
-	sr0 s0
-	sr0 s0
-	sr0 s0
-	sr0 s0
-	call put1hex
-	load s0,s1
-put1hex:
-	and s0,0f
-	compare s0,0a
-	jump C,put1hex1
-	add s0,7
-put1hex1:
-	add s0,30
-	jump putc
-
-; return in data
-; clobbers data, s0, dummy
-get1hex:
-	call getc_ne
-	load s0,data
-	sub data,30		; '0'
-	compare data,0a	; '9'-'0'+1
-	jump C,get1hex2
-	sub data,11		; 'A'-'0'
-	compare data,06	; 'F'-'A'+1
-	jump C,get1hex1
-	sub data,20		; 'a'-'A'
-	compare data,06	; 'f'-'a'+1
-	jump NC,get1hex
-get1hex1:
-	add data,0a
-get1hex2:
-	jump putc
 
 help:
 	call crlf
@@ -143,9 +106,59 @@ help:
 	call putc
 	load s0,CHAR_t
 	call putc
-
 	jump ret_main
 	
+; input : s0=byte to print as hex
+; clobbers s0, s1
+put2hex:
+	load s1,s0
+	sr0 s0
+	sr0 s0
+	sr0 s0
+	sr0 s0
+	call put1hex
+	load s0,s1
+put1hex:
+	and s0,0f
+	compare s0,0a
+	jump C,put1hex1
+	add s0,7
+put1hex1:
+	add s0,30
+	jump putc
+
+; return in data
+; clobbers s0
+get1hex:
+	call getc_ne
+	load s0,data
+	sub data,30		; '0'
+	compare data,0a	; '9'-'0'+1
+	jump C,get1hex2
+	sub data,11		; 'A'-'0'
+	compare data,06	; 'F'-'A'+1
+	jump C,get1hex1
+	sub data,20		; 'a'-'A'
+	compare data,06	; 'f'-'a'+1
+	jump NC,get1hex
+get1hex1:
+	add data,0a
+get1hex2:
+	jump putc
+
+; return in data
+; clobbers s0, s1
+get2hex:
+	call get1hex
+	load s1,data
+	sl0 s1
+	sl0 s1
+	sl0 s1
+	sl0 s1
+	call get1hex
+	or data,s1
+	return
+
 ; clobbers s0, dummy
 crlf:
 	load s0,CHAR_CR
@@ -159,7 +172,6 @@ space:
 	jump putc
 
 ; return in data
-; clobbers data
 getc_ne:
 	load data,00
 	ENABLE INTERRUPT
@@ -169,12 +181,15 @@ loop:
 	return
 
 ; return in data
-; clobbers data, s0, dummy
+; clobbers s0, dummy
 getc:
 	call getc_ne
 	load s0,data
 ; pass-through to putc here to spare 2 words
-; clobbers s0, dummy
+; ..............
+
+; input in s0
+; clobbers dummy
 putc:
 	input dummy,uart_status_port
 	test dummy,01
