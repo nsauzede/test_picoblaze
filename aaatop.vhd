@@ -63,7 +63,7 @@ signal clk2 : std_logic;
 
 signal buttons : STD_LOGIC_VECTOR (3 downto 0);
 signal leds : STD_LOGIC_VECTOR (3 downto 0);
-signal out_spi : STD_LOGIC_VECTOR (7 downto 0);
+signal slave_out : STD_LOGIC_VECTOR (7 downto 0);
 
 	signal spi_clk : std_logic;
 	signal spi_csn : std_logic;
@@ -71,6 +71,7 @@ signal out_spi : STD_LOGIC_VECTOR (7 downto 0);
 	signal spi_miso : std_logic;
 	signal spimaster0_cs : std_logic;
    SIGNAL wspi         : std_logic;
+signal master_out : std_logic_vector(7 downto 0);
 begin
 --DCM freq => synthesis freq
 --32 => 100
@@ -112,11 +113,16 @@ begin
 	inputs : process(clk2)
 	begin
 		if rising_edge(clk2) then
-			case port_id(7 downto 0) is
-				when x"80" => in_port <= in_port_uart;
-					read_buffer <= read_strobe;
-				when x"81" => in_port <= "0000000" & buffer_full;
-				when others =>	in_port <= (others => 'X');
+			case port_id(7 downto 4) is
+				when x"f" => in_port <= master_out;
+				when x"8" =>
+					case port_id(3 downto 0) is
+						when x"0" => in_port <= in_port_uart;
+							read_buffer <= read_strobe;
+						when x"1" => in_port <= "0000000" & buffer_full;
+						when others =>	in_port <= (others => '1');
+					end case;
+				when others =>	in_port <= (others => '1');
 			end case;
 		end if;
 	end process;
@@ -205,7 +211,7 @@ begin
 		cpu_address => port_id(2 downto 0),
 		cpu_wait => open,
 		data_in => out_port,
-		data_out => open,
+		data_out => master_out,
 		enable => spimaster0_cs,
 		req_read => '0',
 		req_write => wspi,
@@ -222,7 +228,7 @@ begin
 		MOSI => spi_mosi,
 		MISO => spi_miso,
 		SSEL => spi_csn,
-		out_port => out_spi
+		out_port => slave_out
 	);
-	leds <= out_spi(3 downto 0);
+	leds <= slave_out(3 downto 0);
 end Behavioral;

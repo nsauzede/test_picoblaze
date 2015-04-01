@@ -5,6 +5,7 @@ CONSTANT delay_1us_constant,0b		; 2+4*A+2=100 => A=0x0b for clk=48MHz
 CONSTANT uart_status_port,81
 CONSTANT uart_port,80
 CONSTANT spi_clk_div_port,F4
+CONSTANT spi_receive_port,F3
 CONSTANT spi_transmit_port,F2
 CONSTANT spi_cs_ctl_port,F0
 
@@ -63,10 +64,50 @@ spi_out:
 	output dummy,spi_cs_ctl_port
 	load s0,CHAR_EQUAL
 	call putbyte
-	call getbyte
+;	call getbyte
+	call get2hex
 	output data,spi_transmit_port
+	load s0,CHAR_EQUAL
+	call putbyte
+	input s0,f0
+;	call putbyte
+;	load s0,aa
+	call put2hex
 	jump ret_main
-	
+
+; input : s0=byte to print as hex
+put2hex:
+	load s1,s0
+	sr0 s0
+	sr0 s0
+	sr0 s0
+	sr0 s0
+	call put1hex
+	load s0,s1
+put1hex:
+	and s0,0f
+	compare s0,0a
+	jump C,put1hex1
+	add s0,7
+put1hex1:
+	add s0,30
+	jump putbyte
+
+get2hex:
+	call getbyte
+	compare s0,61
+	jump get1hex
+; 'a'=61=>0a
+; '0'=30=>00
+get1hex:
+	call getbyte
+	compare s0,61
+	jump C,get1hex1
+	sub s0,61
+get1hex1:
+	sub s0,30
+	return
+
 help:
 	call crlf
 	load s0,CHAR_QUEST
@@ -106,13 +147,15 @@ crlf:
 	load s0,CHAR_CR
 	call putbyte
 	load s0,CHAR_LF
-	call putbyte
-	return
+;	call putbyte
+;	return
+	jump putbyte
 
 space:
 	load s0,CHAR_SPACE
-	call putbyte
-	return
+;	call putbyte
+;	return
+	jump putbyte
 
 getbyte:
 	load data,00

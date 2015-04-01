@@ -143,5 +143,7 @@ begin
 			end if;
 		end if;
 	end process;
-	MISO <= byte_data_sent(7);
+--	MISO <= byte_data_sent(7);
+--	MISO <= '1';
+	MISO <= clk;
 end Behavioral;
