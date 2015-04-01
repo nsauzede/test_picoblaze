@@ -16,6 +16,8 @@ NAMEREG s1,reg1
 NAMEREG s2,reg2
 NAMEREG s3,reg3
 NAMEREG s4,reg4
+
+NAMEREG sD,dummy2
 NAMEREG sE,dummy
 NAMEREG sF,data
 
@@ -25,30 +27,30 @@ coldstart:
 
 	call crlf
 	load s0,CHAR_EXCLA
-	call putbyte
+	call putc
 	load s0,CHAR_r
-	call putbyte
+	call putc
 	load s0,CHAR_e
-	call putbyte
+	call putc
 	load s0,CHAR_s
-	call putbyte
+	call putc
 	load s0,CHAR_e
-	call putbyte
+	call putc
 	load s0,CHAR_t
-	call putbyte
+	call putc
 	load s0,CHAR_EXCLA
-	call putbyte
+	call putc
 	call crlf
 main:
 	load s0,CHAR_m
-	call putbyte
+	call putc
 	load s0,CHAR_o
-	call putbyte
+	call putc
 	load s0,CHAR_n
-	call putbyte
+	call putc
 	load s0,CHAR_GREATER
-	call putbyte
-	call getbyte
+	call putc
+	call getc
 	compare data,CHAR_s
 	jump Z,spi_out
 	compare data,CHAR_QUEST
@@ -63,15 +65,12 @@ spi_out:
 	load dummy,fe
 	output dummy,spi_cs_ctl_port
 	load s0,CHAR_EQUAL
-	call putbyte
-;	call getbyte
-	call get2hex
+	call putc
+	call get1hex
 	output data,spi_transmit_port
 	load s0,CHAR_EQUAL
-	call putbyte
+	call putc
 	input s0,f0
-;	call putbyte
-;	load s0,aa
 	call put2hex
 	jump ret_main
 
@@ -91,87 +90,95 @@ put1hex:
 	add s0,7
 put1hex1:
 	add s0,30
-	jump putbyte
+	jump putc
 
-get2hex:
-	call getbyte
-	compare s0,61
-	jump get1hex
-; 'a'=61=>0a
-; '0'=30=>00
+; return in data
+; clobbers data, s0, dummy
 get1hex:
-	call getbyte
-	compare s0,61
+	call getc_ne
+	load s0,data
+	sub data,30		; '0'
+	compare data,0a	; '9'-'0'+1
+	jump C,get1hex2
+	sub data,11		; 'A'-'0'
+	compare data,06	; 'F'-'A'+1
 	jump C,get1hex1
-	sub s0,61
+	sub data,20		; 'a'-'A'
+	compare data,06	; 'f'-'a'+1
+	jump NC,get1hex
 get1hex1:
-	sub s0,30
-	return
+	add data,0a
+get1hex2:
+	jump putc
 
 help:
 	call crlf
 	load s0,CHAR_QUEST
-	call putbyte
+	call putc
 	call space
 	load s0,CHAR_h
-	call putbyte
+	call putc
 	load s0,CHAR_e
-	call putbyte
+	call putc
 	load s0,CHAR_l
-	call putbyte
+	call putc
 	load s0,CHAR_p
-	call putbyte
+	call putc
 
 	call crlf
 	load s0,CHAR_s
-	call putbyte
+	call putc
 	call space
 	load s0,CHAR_s
-	call putbyte
+	call putc
 	load s0,CHAR_p
-	call putbyte
+	call putc
 	load s0,CHAR_i
-	call putbyte
+	call putc
 	load s0,CHAR_UNDER
-	call putbyte
+	call putc
 	load s0,CHAR_o
-	call putbyte
+	call putc
 	load s0,CHAR_u
-	call putbyte
+	call putc
 	load s0,CHAR_t
-	call putbyte
+	call putc
 
 	jump ret_main
 	
+; clobbers s0, dummy
 crlf:
 	load s0,CHAR_CR
-	call putbyte
+	call putc
 	load s0,CHAR_LF
-;	call putbyte
-;	return
-	jump putbyte
+	jump putc
 
+; clobbers s0, dummy
 space:
 	load s0,CHAR_SPACE
-;	call putbyte
-;	return
-	jump putbyte
+	jump putc
 
-getbyte:
+; return in data
+; clobbers data
+getc_ne:
 	load data,00
 	ENABLE INTERRUPT
 loop:
 	test data,ff
 	jump Z,loop
-;	output data,uart_port
+	return
+
+; return in data
+; clobbers data, s0, dummy
+getc:
+	call getc_ne
 	load s0,data
-;	call putbyte
-;	return
-; pass-through to putbyte here to spare 2 words
-putbyte:
+; pass-through to putc here to spare 2 words
+; clobbers s0, dummy
+putc:
 	input dummy,uart_status_port
 	test dummy,01
-	jump NZ,putbyte
+	jump NZ,putc
 	output s0,uart_port
 	return
 
