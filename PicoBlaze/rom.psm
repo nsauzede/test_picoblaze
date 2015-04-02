@@ -40,6 +40,14 @@ coldstart:
 	load s0,CHAR_EXCLA
 	call putc
 	call crlf
+
+;	load data,ff
+;loop:
+;	call spi_inout
+;	sub data,1
+;	call delay_1s
+;	jump loop
+
 main:
 	load s0,CHAR_m
 	call putc
@@ -58,19 +66,25 @@ ret_main:
 	call crlf
 	jump main
 
-spi_out:
+; input : data=byte to send to spi
+; return in s0
+; clobbers dummy
+spi_inout:
 	load dummy,00
 	output dummy,spi_clk_div_port
 	load dummy,fe
 	output dummy,spi_cs_ctl_port
-	load s0,CHAR_EQUAL
-	call putc
-;	call get1hex
-	call get2hex
 	output data,spi_transmit_port
+	input s0,spi_receive_port
+	return
+
+spi_out:
 	load s0,CHAR_EQUAL
 	call putc
-	input s0,f0
+	call get2hex
+	load s0,CHAR_EQUAL
+	call putc
+	call spi_inout
 	call put2hex
 	jump ret_main
 
@@ -175,9 +189,9 @@ space:
 getc_ne:
 	load data,00
 	ENABLE INTERRUPT
-loop:
+getc_ne1:
 	test data,ff
-	jump Z,loop
+	jump Z,getc_ne1
 	return
 
 ; return in data
