@@ -1,6 +1,5 @@
 ; Important : each instruction executes in 2 cycles = Tclk*2
-;CONSTANT delay_1us_constant,18		; 2+4*A+2=100 => A=0x18 for clk=100MHz
-CONSTANT delay_1us_constant,0b		; 2+4*A+2=100 => A=0x0b for clk=48MHz
+CONSTANT delay_1us_constant,0b		; 2+4*A+2=48 => A=0x0b for clk=48MHz
 
 CONSTANT uart_status_port,81
 CONSTANT uart_port,80
@@ -42,6 +41,8 @@ coldstart:
 	call putc
 	call crlf
 
+	jump loop
+
 main:
 	load s0,CHAR_m
 	call putc
@@ -65,9 +66,10 @@ loop:
 loop1:
 	call spi_inout
 	rl data
-	call delay_20ms
-	call delay_20ms
-	call delay_20ms
+;	call delay_20ms
+;	call delay_20ms
+;	call delay_20ms
+	call delay_1s
 	jump loop1
 
 ; input : data=byte to send to spi
@@ -223,18 +225,20 @@ putc:
 
 delay_1us: LOAD reg0,delay_1us_constant	; routine takes 2+4*A+2 cycles
 _wait_1us: SUB reg0,01			; (2+4*A+2)*Tclk=10e-6s => A=(Fclk/10e6-4)/4
-	JUMP NZ,_wait_1us			; => A=7 for Fclk=32MHz
+	JUMP NZ,_wait_1us			; => A=0x0b for Fclk=48MHz, A=7 for 32MHz
 	RETURN
-delay_40us: LOAD reg1,22		; routine takes 2+(2+(4+4*A)+4)*B+2 cycles
+delay_40us: LOAD reg1,23		; routine takes 2+(2+(4+4*A)+4)*B+2 cycles
 _wait_40us: CALL delay_1us		; (2+(2+(4+4*A)+4)*B+2)*Tclk=40e-6s
-	SUB reg1,01					; => B=(Fclk/25000-4)/(10+4*A)=33.578~=34=0x22
-	JUMP NZ,_wait_40us
+	SUB reg1,01					; => B=(Fclk/25000-4)/(10+4*A)
+	JUMP NZ,_wait_40us			; => B=33.578~=34=0x22 for 32, B~=35=0x23 for 48
 	RETURN
 delay_1ms: LOAD reg2,19			;25 x 40us = 1ms
-_wait_1ms: CALL delay_40us		; 1000000=A*40000+(2+3A)*62.5
+_wait_1ms: CALL delay_40us		; 1000000=A*40000+(2+3A)*62.5 in ns for 32
 	SUB reg2,01					; A=(1000000-2*62.5)/(40000+3*62.5)
-	JUMP NZ,_wait_1ms			; A=24.880~=25=0x19
-	RETURN
+	JUMP NZ,_wait_1ms			; A=24.880~=25=0x19 for 32
+	RETURN						; 1000000=A*40000+(2+3A)*41.6 in ns for 48
+								; A=(1000000-2*41.6)/(40000+3*41.6)
+								; A=24.920~=25=0x19 for 48
 delay_20ms: LOAD reg3,14			;20 x 1ms = 20ms  (20=0x14)
 _wait_20ms: CALL delay_1ms
 	SUB reg3,01
