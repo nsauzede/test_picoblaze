@@ -64,6 +64,7 @@ signal clk2 : std_logic;
 signal buttons : STD_LOGIC_VECTOR (3 downto 0);
 signal leds : STD_LOGIC_VECTOR (3 downto 0);
 signal slave_out : STD_LOGIC_VECTOR (7 downto 0);
+signal slave_in : STD_LOGIC_VECTOR (7 downto 0);
 
 	signal spi_clk : std_logic;
 	signal spi_csn : std_logic;
@@ -75,7 +76,7 @@ signal master_out : std_logic_vector(7 downto 0);
 begin
 --DCM freq => synthesis freq
 --32 => 100
---48 => 66		-- ok for uart=3Mbps
+--48 => 66;56		-- ok for uart=3Mbps
 --50 => 64
 --64 => 50
 --96 => 33
@@ -233,10 +234,12 @@ begin
 		MOSI => spi_mosi,
 		MISO => spi_miso,
 		SSEL => spi_csn,
-		in_port => x"a5",
+		in_port => slave_in,
 		out_port => slave_out
 	);
 	leds <= slave_out(3 downto 0);
+--	slave_in <= x"a5";
+	slave_in <= x"0" & buttons;
 --	w1a(0) <= spi_miso when spi_csn='0' else 'Z';
 --	spi_mosi <= w1a(1);
 --	spi_clk <= w1a(2);

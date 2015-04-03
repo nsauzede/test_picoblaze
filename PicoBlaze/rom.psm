@@ -41,8 +41,6 @@ coldstart:
 	call putc
 	call crlf
 
-	jump loop
-
 main:
 	load s0,CHAR_m
 	call putc
@@ -55,6 +53,8 @@ main:
 	call getc
 	compare data,CHAR_s
 	jump Z,spi_out
+	compare data,CHAR_l
+	jump Z,loop
 	compare data,CHAR_QUEST
 	jump Z,help
 ret_main:
@@ -64,11 +64,11 @@ ret_main:
 loop:
 	load data,11
 loop1:
+	load s0,CHAR_EQUAL
+	call putc
 	call spi_inout
+	call put2hex
 	rl data
-;	call delay_20ms
-;	call delay_20ms
-;	call delay_20ms
 	call delay_1s
 	jump loop1
 
@@ -110,6 +110,19 @@ help:
 	load s0,CHAR_e
 	call putc
 	load s0,CHAR_l
+	call putc
+	load s0,CHAR_p
+	call putc
+
+	call crlf
+	load s0,CHAR_l
+	call putc
+	call space
+	load s0,CHAR_l
+	call putc
+	load s0,CHAR_o
+	call putc
+	load s0,CHAR_o
 	call putc
 	load s0,CHAR_p
 	call putc
