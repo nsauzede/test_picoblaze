@@ -36,7 +36,8 @@ entity spi_slave is
 	MOSI : in std_logic;
 	MISO : out std_logic;
 	SSEL : in std_logic;
-	out_port : out std_logic_vector(7 downto 0)
+	out_port : out std_logic_vector(7 downto 0);
+	in_port : in std_logic_vector(7 downto 0)
 	 );
 end spi_slave;
 
@@ -53,6 +54,7 @@ signal MOSI_data : std_logic;
 signal bitcnt : unsigned(2 downto 0);
 signal byte_received : std_logic;
 signal byte_data_received : std_logic_vector(7 downto 0);
+signal rin_port : std_logic_vector(7 downto 0);
 signal rout_port : std_logic_vector(7 downto 0);
 signal byte_data_sent : std_logic_vector(7 downto 0);
 signal cnt : unsigned(7 downto 0);
@@ -130,20 +132,14 @@ begin
 	process(clk)
 	begin
 		if rising_edge(clk) then
-			if SSEL_active='1' then
-				byte_data_sent <= std_logic_vector(cnt);
+			if SSEL_active='0' then
+				byte_data_sent <= in_port;
 			else
 				if SCK_fallingedge='1' then
-					if bitcnt="000" then
-						byte_data_sent <= x"00";
-					else
-						byte_data_sent <= byte_data_sent(6 downto 0) & '0';
-					end if;
+					byte_data_sent <= byte_data_sent(6 downto 0) & '0';
 				end if;
 			end if;
 		end if;
 	end process;
---	MISO <= byte_data_sent(7);
---	MISO <= '1';
-	MISO <= clk;
+	MISO <= byte_data_sent(7);
 end Behavioral;

@@ -41,13 +41,6 @@ coldstart:
 	call putc
 	call crlf
 
-;	load data,ff
-;loop:
-;	call spi_inout
-;	sub data,1
-;	call delay_1s
-;	jump loop
-
 main:
 	load s0,CHAR_m
 	call putc
@@ -66,6 +59,16 @@ ret_main:
 	call crlf
 	jump main
 
+loop:
+	load data,11
+loop1:
+	call spi_inout
+	rl data
+	call delay_20ms
+	call delay_20ms
+	call delay_20ms
+	jump loop1
+
 ; input : data=byte to send to spi
 ; return in s0
 ; clobbers dummy
@@ -75,6 +78,8 @@ spi_inout:
 	load dummy,fe
 	output dummy,spi_cs_ctl_port
 	output data,spi_transmit_port
+	load dummy,ff
+	output dummy,spi_cs_ctl_port
 	input s0,spi_receive_port
 	return
 

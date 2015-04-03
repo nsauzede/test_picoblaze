@@ -115,6 +115,7 @@ begin
 		if rising_edge(clk2) then
 			case port_id(7 downto 4) is
 				when x"f" => in_port <= master_out;
+--				when x"f" => in_port <= x"fe";
 				when x"8" =>
 					case port_id(3 downto 0) is
 						when x"0" => in_port <= in_port_uart;
@@ -216,10 +217,14 @@ begin
 		req_read => '0',
 		req_write => wspi,
 
-		slave_cs => spi_csn,
-		slave_clk => spi_clk,
-		slave_mosi => spi_mosi,
-		slave_miso => spi_miso
+--		slave_cs => spi_csn,
+--		slave_clk => spi_clk,
+--		slave_mosi => spi_mosi,
+--		slave_miso => spi_miso
+		slave_cs => open,
+		slave_clk => open,
+		slave_mosi => open,
+		slave_miso => 'Z'
 	);
 	spi_slave0 : entity work.spi_slave
 	Port map( 
@@ -228,7 +233,12 @@ begin
 		MOSI => spi_mosi,
 		MISO => spi_miso,
 		SSEL => spi_csn,
+		in_port => x"a5",
 		out_port => slave_out
 	);
 	leds <= slave_out(3 downto 0);
+	w1a(0) <= spi_miso when spi_csn='0' else 'Z';
+	spi_mosi <= w1a(1);
+	spi_clk <= w1a(2);
+	spi_csn <= w1a(3);
 end Behavioral;
