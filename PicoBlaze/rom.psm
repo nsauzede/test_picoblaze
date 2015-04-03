@@ -7,6 +7,7 @@ CONSTANT uart_port,80
 CONSTANT spi_clk_div_port,F4
 CONSTANT spi_receive_port,F3
 CONSTANT spi_transmit_port,F2
+CONSTANT spi_status_port,F1
 CONSTANT spi_cs_ctl_port,F0
 
 CONSTANT UARTavailable,01
@@ -73,14 +74,18 @@ loop1:
 ; return in s0
 ; clobbers dummy
 spi_inout:
-	load dummy,00
+	load dummy,01					; needs to be 01 or 02 for slave read to work ?
 	output dummy,spi_clk_div_port
 	load dummy,fe
 	output dummy,spi_cs_ctl_port
 	output data,spi_transmit_port
+spi_inout1:
+	input dummy,spi_status_port
+	test dummy,01
+	jump NZ,spi_inout1
+	input s0,spi_receive_port
 	load dummy,ff
 	output dummy,spi_cs_ctl_port
-	input s0,spi_receive_port
 	return
 
 spi_out:
