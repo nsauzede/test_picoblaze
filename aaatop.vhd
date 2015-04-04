@@ -30,12 +30,19 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity aaatop is
-    Port ( rx : in  STD_LOGIC;
-           tx : inout  STD_LOGIC;
-           W1A : inout  STD_LOGIC_VECTOR (15 downto 0);
-           W1B : inout  STD_LOGIC_VECTOR (15 downto 0);
-           W2C : inout  STD_LOGIC_VECTOR (15 downto 0);
-           clk : in  STD_LOGIC);
+Port (
+	rx : in  STD_LOGIC;
+	tx : inout  STD_LOGIC;
+	W1A : inout  STD_LOGIC_VECTOR (15 downto 0);
+	W1B : inout  STD_LOGIC_VECTOR (15 downto 0);
+	W2C : inout  STD_LOGIC_VECTOR (15 downto 0);
+
+--	flash_sclk : out STD_LOGIC;
+--	flash_cs   : out STD_LOGIC;
+--	flash_so   : in  STD_LOGIC;
+--	flash_si   : out STD_LOGIC;
+
+	clk : in  STD_LOGIC);
 end aaatop;
 
 architecture Behavioral of aaatop is
@@ -191,7 +198,8 @@ begin
 --		clk => en_16_x_baud
 		clk => clk2
 	);
-	rom0: entity work.ProgramROM
+--	rom0: entity work.ProgramROM
+	rom0: entity work.rom				-- use this in simulation
     Port map(
 		address => address,
 		instruction => instruction,
@@ -218,14 +226,24 @@ begin
 		req_read => '0',
 		req_write => wspi,
 
+--spi_slave
 		slave_cs => spi_csn,
 		slave_clk => spi_clk,
 		slave_mosi => spi_mosi,
 		slave_miso => spi_miso
+
+--flash
+--		slave_cs => flash_cs,
+--		slave_clk => flash_sclk,
+--		slave_mosi => flash_si,
+--		slave_miso => flash_so
+
+--open
 --		slave_cs => open,
 --		slave_clk => open,
 --		slave_mosi => open,
 --		slave_miso => 'Z'
+
 	);
 	spi_slave0 : entity work.spi_slave
 	Port map( 
@@ -238,8 +256,8 @@ begin
 		out_port => slave_out
 	);
 	leds <= slave_out(3 downto 0);
---	slave_in <= x"a5";
-	slave_in <= x"0" & buttons;
+	slave_in <= x"a5";
+--	slave_in <= x"0" & buttons;
 --	w1a(0) <= spi_miso when spi_csn='0' else 'Z';
 --	spi_mosi <= w1a(1);
 --	spi_clk <= w1a(2);

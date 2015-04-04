@@ -22,6 +22,9 @@ NAMEREG sF,data
 
 ADDRESS 000
 coldstart:
+
+	jump loop					; for simulation
+
 	call delay_1ms				; give time to external logic to settle..
 
 	call crlf
