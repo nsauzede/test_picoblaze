@@ -135,7 +135,7 @@ begin
 			if SSEL_active='0' then
 				byte_data_sent <= in_port;
 			else
-				if SCK_fallingedge='1' then
+				if SCK_risingedge='1' then
 					byte_data_sent <= byte_data_sent(6 downto 0) & '0';
 				end if;
 			end if;

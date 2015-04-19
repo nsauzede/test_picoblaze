@@ -23,7 +23,7 @@ NAMEREG sF,data
 ADDRESS 000
 coldstart:
 
-	jump loop					; for simulation
+;	jump loop					; for simulation
 
 	call delay_1ms				; give time to external logic to settle..
 
@@ -79,7 +79,7 @@ loop1:
 ; return in s0
 ; clobbers dummy
 spi_inout:
-	load dummy,01					; needs to be 01 or 02 for slave read to work ?
+	load dummy,40
 	output dummy,spi_clk_div_port
 	load dummy,fe
 	output dummy,spi_cs_ctl_port

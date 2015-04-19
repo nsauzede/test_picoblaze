@@ -68,7 +68,7 @@ signal hard_reset : std_logic;
 
 signal clk2 : std_logic;
 
-signal buttons : STD_LOGIC_VECTOR (3 downto 0);
+signal buttons : STD_LOGIC_VECTOR (3 downto 0) := x"5";
 signal leds : STD_LOGIC_VECTOR (3 downto 0);
 signal slave_out : STD_LOGIC_VECTOR (7 downto 0);
 signal slave_in : STD_LOGIC_VECTOR (7 downto 0);
@@ -256,8 +256,7 @@ begin
 		out_port => slave_out
 	);
 	leds <= slave_out(3 downto 0);
-	slave_in <= x"a5";
---	slave_in <= x"0" & buttons;
+	slave_in <= x"a" & buttons;
 --	w1a(0) <= spi_miso when spi_csn='0' else 'Z';
 --	spi_mosi <= w1a(1);
 --	spi_clk <= w1a(2);
