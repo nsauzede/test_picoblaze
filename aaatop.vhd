@@ -80,7 +80,26 @@ signal slave_in : STD_LOGIC_VECTOR (7 downto 0);
 	signal spimaster0_cs : std_logic;
    SIGNAL wspi         : std_logic;
 signal master_out : std_logic_vector(7 downto 0);
+
+signal test_probes : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
+constant freq : integer := 48000000;
+constant div : integer := 4;		-- 48M/3M=16=0xf => 4 bits required
+constant baud : integer := 3000000;		-- ok 3M
+signal tx2 : std_logic;
 begin
+	log0: entity work.log_pins
+	 generic map(
+		baud_rate => baud,
+		div_len => div,
+		clk_freq => freq,
+		probe_len => test_probes'length
+	)
+	Port map( clk32 => clk2,
+		test_probes => test_probes,
+		rs232_tx => tx2);
+	test_probes <= spi_clk & spi_csn & spi_mosi & spi_miso;
+	w1a(0) <= tx2;
+	
 --DCM freq => synthesis freq
 --32 => 100
 --48 => 66;56		-- ok for uart=3Mbps
@@ -96,7 +115,11 @@ begin
 ----		CLKIN_IBUFG_OUT => open,
 --		CLK0_OUT => open
 --	);
-	clockman0: entity work.clockman
+	clock0: entity work.clockman
+	generic map(
+		DIV => 2,
+		MULT => 3
+	)
 	port map(
 			clkin => clk,
 			clk0 => clk2

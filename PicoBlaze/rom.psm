@@ -23,7 +23,9 @@ NAMEREG sF,data
 ADDRESS 000
 coldstart:
 
-;	jump loop					; for simulation
+;	jump spi_inout				; for simulation
+	call delay_1ms
+	jump loop					; for simulation
 
 	call delay_1ms				; give time to external logic to settle..
 
@@ -72,14 +74,15 @@ loop1:
 	call spi_inout
 	call put2hex
 	rl data
-	call delay_1s
+;	call delay_1s
+	call delay_1ms
 	jump loop1
 
 ; input : data=byte to send to spi
 ; return in s0
 ; clobbers dummy
 spi_inout:
-	load dummy,40
+	load dummy,ff
 	output dummy,spi_clk_div_port
 	load dummy,fe
 	output dummy,spi_cs_ctl_port

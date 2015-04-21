@@ -21,6 +21,12 @@ library unisim;
 use unisim.vcomponents.all;
 
 entity clockman is
+	generic(
+		PERIOD : real := 31.25;			--period of input clock
+		PREDIV : real := 2.0;			--as FX output is double-rate, predivide by 2
+		DIV : integer := 2;
+		MULT : integer := 3
+	);
 	port(
 			clkin : in std_logic;		-- clock input
 			clk0 : out std_logic			-- double clock rate output
@@ -43,12 +49,12 @@ begin
 
 	DCM_baseClock : DCM
 	generic map(
-		CLKDV_DIVIDE => 2.0, --  Divide by: 1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5
+		CLKDV_DIVIDE => PREDIV, --  Divide by: 1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5
 									--     7.0,7.5,8.0,9.0,10.0,11.0,12.0,13.0,14.0,15.0 or 16.0
-		CLKFX_DIVIDE => 2,   --  Can be any integer from 1 to 32
-		CLKFX_MULTIPLY => 3, --  Can be any integer from 2 to 32
+		CLKFX_DIVIDE => DIV,   --  Can be any integer from 1 to 32
+		CLKFX_MULTIPLY => MULT, --  Can be any integer from 2 to 32
 		CLKIN_DIVIDE_BY_2 => FALSE, --  TRUE/FALSE to enable CLKIN divide by two feature
-		CLKIN_PERIOD => 31.25,          --  Specify period of input clock
+		CLKIN_PERIOD => PERIOD,          --  Specify period of input clock
 		CLKOUT_PHASE_SHIFT => "NONE", --  Specify phase shift of NONE, FIXED or VARIABLE
 		CLK_FEEDBACK => "1X",         --  Specify clock feedback of NONE, 1X or 2X
 		DESKEW_ADJUST => "SYSTEM_SYNCHRONOUS", --  SOURCE_SYNCHRONOUS, SYSTEM_SYNCHRONOUS or

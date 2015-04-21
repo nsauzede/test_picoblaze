@@ -64,6 +64,11 @@ ARCHITECTURE behavior OF tb_top IS
    -- Clock period definitions
    constant clk_period : time := 31.25 ns;
  
+   signal rx2 : std_logic := '0';
+   signal clk2 : std_logic := '0';
+	signal read_buffer : std_logic;
+	signal in_port_uart : std_logic_vector(7 downto 0);
+   constant clk2_period : time := 20.83 ns;
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
@@ -85,6 +90,14 @@ BEGIN
 		wait for clk_period/2;
    end process;
  
+   clk2_process :process
+   begin
+		clk2 <= '0';
+		wait for clk2_period/2;
+		clk2 <= '1';
+		wait for clk2_period/2;
+   end process;
+ 
 
    -- Stimulus process
    stim_proc: process
@@ -98,5 +111,18 @@ BEGIN
 
       wait;
    end process;
+	rx2 <= w1a(0);
+	uart_rx0: entity work.uart_rx
+    Port map(
+		serial_in => rx2,
+		data_out => in_port_uart,
+		read_buffer => read_buffer,
+		reset_buffer => '0',
+		en_16_x_baud => '1',
+		buffer_data_present => read_buffer,
+		buffer_full => open,
+		buffer_half_full => open,
+		clk => clk2
+	);
 
 END;

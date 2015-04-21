@@ -56,7 +56,7 @@ signal byte_received : std_logic;
 signal byte_data_received : std_logic_vector(7 downto 0);
 signal rin_port : std_logic_vector(7 downto 0);
 signal rout_port : std_logic_vector(7 downto 0);
-signal byte_data_sent : std_logic_vector(7 downto 0);
+signal byte_data_sent : std_logic_vector(7 downto 0) := (others => '1');
 signal cnt : unsigned(7 downto 0);
 begin
 	process(clk)
