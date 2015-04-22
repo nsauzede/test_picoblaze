@@ -18,7 +18,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="30" />
+   <WVObjectSize size="28" />
    <wvobject fp_name="/tb_top/uut/tx" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">tx</obj_property>
       <obj_property name="ObjectShortName">tx</obj_property>
@@ -51,39 +51,36 @@
       <obj_property name="ElementShortName">spi_miso</obj_property>
       <obj_property name="ObjectShortName">spi_miso</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb_top/uut/log0/timestamp" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">timestamp[31:0]</obj_property>
-      <obj_property name="ObjectShortName">timestamp[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-      <obj_property name="Reversed">false</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_top/uut/log0/timestamp_buf" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">timestamp_buf[31:0]</obj_property>
-      <obj_property name="ObjectShortName">timestamp_buf[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
    <wvobject fp_name="/tb_top/uut/tx2" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">tx2</obj_property>
       <obj_property name="ObjectShortName">tx2</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/log0/test_probes" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">test_probes[3:0]</obj_property>
-      <obj_property name="ObjectShortName">test_probes[3:0]</obj_property>
+      <obj_property name="ElementShortName">test_probes[7:0]</obj_property>
+      <obj_property name="ObjectShortName">test_probes[7:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/log0/current_inputs" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">current_inputs[3:0]</obj_property>
-      <obj_property name="ObjectShortName">current_inputs[3:0]</obj_property>
+      <obj_property name="ElementShortName">current_inputs[7:0]</obj_property>
+      <obj_property name="ObjectShortName">current_inputs[7:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/log0/last_sent" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">last_sent[3:0]</obj_property>
-      <obj_property name="ObjectShortName">last_sent[3:0]</obj_property>
+      <obj_property name="ElementShortName">last_sent[7:0]</obj_property>
+      <obj_property name="ObjectShortName">last_sent[7:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
+   <wvobject fp_name="/tb_top/in_port_uart" type="array" db_ref_id="1">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">in_port_uart[7:0]</obj_property>
+      <obj_property name="ObjectShortName">in_port_uart[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="label">in_port_uart[7:0]</obj_property>
+      <obj_property name="Reversed">false</obj_property>
+   </wvobject>
    <wvobject fp_name="/tb_top/uut/log0/last_changed" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">last_changed[3:0]</obj_property>
-      <obj_property name="ObjectShortName">last_changed[3:0]</obj_property>
+      <obj_property name="ElementShortName">last_changed[7:0]</obj_property>
+      <obj_property name="ObjectShortName">last_changed[7:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/log0/nchanges" type="array" db_ref_id="1">
@@ -97,8 +94,8 @@
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/log0/message" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">message[79:0]</obj_property>
-      <obj_property name="ObjectShortName">message[79:0]</obj_property>
+      <obj_property name="ElementShortName">message[9:0]</obj_property>
+      <obj_property name="ObjectShortName">message[9:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/log0/bits_to_send" type="array" db_ref_id="1">
@@ -109,11 +106,6 @@
    <wvobject fp_name="/tb_top/read_buffer" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">read_buffer</obj_property>
       <obj_property name="ObjectShortName">read_buffer</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_top/in_port_uart" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">in_port_uart[7:0]</obj_property>
-      <obj_property name="ObjectShortName">in_port_uart[7:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/clk2" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk2</obj_property>

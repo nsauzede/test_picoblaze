@@ -28,12 +28,12 @@ architecture Behavioral of log_pins is
    signal nchanges : unsigned(7 downto 0)              := (others => '0');
    constant clocks_ticks_per_baud : unsigned(div_len-1 downto 0)             := to_unsigned(clk_freq/baud_rate,div_len);
    signal count                 : unsigned(div_len-1 downto 0)             := (others => '0');
-	constant ts_len : integer := 32;
+--	constant ts_len : integer := 32;
 --	constant ts_len : integer := 16;
 --	constant ts_len : integer := 4;		--simulate 4 bytes=32 bits binary
---	constant ts_len : integer := 0;
+	constant ts_len : integer := 0;
 --   signal message               : std_logic_vector(10*(ts_len+probe_len+2)-1 downto 0):= (others => '1');
-   signal message               : std_logic_vector(10*(ts_len/8+probe_len)-1 downto 0):= (others => '1');
+   signal message               : std_logic_vector(10*(ts_len+probe_len)/8-1 downto 0):= (others => '1');
 	constant nbits_to_send : integer := 12;
 --   signal bits_to_send          : unsigned(nbits_to_send-1 downto 0)              := to_unsigned(message'high,nbits_to_send);
    signal bits_to_send          : unsigned(nbits_to_send-1 downto 0)              := (others => '0');
@@ -80,16 +80,12 @@ begin
 					for i in 0 to timestamp_buf'length/8-1 loop
 						message((timestamp_buf'length/8-1-i)*10+9 downto (timestamp_buf'length/8-1-i)*10) <= "1" & std_logic_vector(timestamp_buf((i+1)*8-1 downto i*8)) & "0";
 					end loop;
-					for i in 0 to probe_len-1 loop
-						if current_inputs(probe_len-1-i) = '1' then
-							message((ts_len/8+i)*10+9 downto (ts_len/8+i)*10) <= "1001100010"; -- ASCII '1'
-						else
-							message((ts_len/8+i)*10+9 downto (ts_len/8+i)*10) <= "1001100000"; -- ASCII '0'
-						end if;
+					for i in 0 to probe_len/8-1 loop
+						message((ts_len/8+i)*10+9 downto (ts_len/8+i)*10) <= "1" & current_inputs((i+1)*8-1 downto i*8) & "0";
 					end loop;
 --                  message(message'length-11 downto message'length-20) <= "1000010100"; -- ASCII 10, new Line.
 --                  message(message'length-1 downto message'length-10) <= "1000011010"; -- ASCII 13, new Line.
-					bits_to_send <= to_unsigned(message'high,bits_to_send'length);
+					bits_to_send <= to_unsigned(message'high+1,bits_to_send'length);
 					last_sent    <= current_inputs;
 					count        <= (others => '0');
 --                  nstartup      <= '1';
