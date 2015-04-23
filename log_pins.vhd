@@ -22,16 +22,16 @@ entity log_pins is
 end log_pins;
 
 architecture Behavioral of log_pins is
-   signal current_inputs        : std_logic_vector(probe_len-1 downto 0)     := (others => '0');
-   signal last_sent             : std_logic_vector(probe_len-1 downto 0)     := (others => '0');
+   signal current_inputs        : std_logic_vector(probe_len-1 downto 0)     := (others => '1');
+   signal last_sent             : std_logic_vector(probe_len-1 downto 0)     := (others => '1');
    signal last_changed             : std_logic_vector(probe_len-1 downto 0)     := (others => '0');
    signal nchanges : unsigned(7 downto 0)              := (others => '0');
    constant clocks_ticks_per_baud : unsigned(div_len-1 downto 0)             := to_unsigned(clk_freq/baud_rate,div_len);
    signal count                 : unsigned(div_len-1 downto 0)             := (others => '0');
---	constant ts_len : integer := 32;
+	constant ts_len : integer := 32;
 --	constant ts_len : integer := 16;
 --	constant ts_len : integer := 4;		--simulate 4 bytes=32 bits binary
-	constant ts_len : integer := 0;
+--	constant ts_len : integer := 0;
 --   signal message               : std_logic_vector(10*(ts_len+probe_len+2)-1 downto 0):= (others => '1');
    signal message               : std_logic_vector(10*(ts_len+probe_len)/8-1 downto 0):= (others => '1');
 	constant nbits_to_send : integer := 12;
@@ -42,7 +42,7 @@ architecture Behavioral of log_pins is
 --   signal nstartup               : std_logic;											-- this one leads to better freq, but startup doesn't work (no update at reset)
 	
 	signal timestamp : unsigned(ts_len-1 downto 0) := (others => '0');
-	signal timestamp_buf : unsigned(ts_len-1 downto 0) := (others => '0');
+	signal timestamp_buf : unsigned(ts_len-1 downto 0) := (others => '1');
 begin
   -- The TX output is the LSB of the message buffer
   rs232_tx <= message(0);
@@ -63,35 +63,40 @@ begin
            -- are we sending bits?
 			if bits_to_send /= 0 then
 				if count = clocks_ticks_per_baud-1 then
-				-- Move on to the next bit
-				message      <= '1' & message(message'high downto 1);
-				bits_to_send <= bits_to_send - 1;
-				count        <= (others => '0');
+					-- Move on to the next bit
+					message      <= '1' & message(message'high downto 1);
+					bits_to_send <= bits_to_send - 1;
+					count        <= (others => '0');
 				else
-				count <= count+1;
+					count <= count+1;
 				end if;
 			else
+				timestamp_buf <= timestamp;
 				-- Are the inputs still the same as last time?
 --               if current_inputs /= last_sent or nstartup = '0' then
-				if current_inputs /= last_sent or timestamp_buf = 0 then
+--				if current_inputs /= last_sent or timestamp_buf = 0 then
+				if current_inputs /= last_sent then
 					nchanges <= (others => '0');
 --						timestamp <= (others => '0');
 --               if current_inputs /= last_sent or startup = '1' then
-					for i in 0 to timestamp_buf'length/8-1 loop
-						message((timestamp_buf'length/8-1-i)*10+9 downto (timestamp_buf'length/8-1-i)*10) <= "1" & std_logic_vector(timestamp_buf((i+1)*8-1 downto i*8)) & "0";
+--					for i in 0 to timestamp_buf'length/8-1 loop
+					for i in 0 to timestamp'length/8-1 loop
+--						message((timestamp_buf'length/8-1-i)*10+9 downto (timestamp_buf'length/8-1-i)*10) <= "1" & std_logic_vector(timestamp_buf((i+1)*8-1 downto i*8)) & "0";
+						message((timestamp'length/8-1-i)*10+9 downto (timestamp'length/8-1-i)*10) <= "1" & std_logic_vector(timestamp((i+1)*8-1 downto i*8)) & "0";
+--						message((timestamp_buf'length/8-1-i)*10+9 downto (timestamp_buf'length/8-1-i)*10) <= "1" & x"ee" & "0";
 					end loop;
 					for i in 0 to probe_len/8-1 loop
 						message((ts_len/8+i)*10+9 downto (ts_len/8+i)*10) <= "1" & current_inputs((i+1)*8-1 downto i*8) & "0";
 					end loop;
 --                  message(message'length-11 downto message'length-20) <= "1000010100"; -- ASCII 10, new Line.
 --                  message(message'length-1 downto message'length-10) <= "1000011010"; -- ASCII 13, new Line.
-					bits_to_send <= to_unsigned(message'high+1,bits_to_send'length);
+					bits_to_send <= to_unsigned(message'length,bits_to_send'length);
 					last_sent    <= current_inputs;
 					count        <= (others => '0');
 --                  nstartup      <= '1';
 --                  startup      <= '0';
+--				else
 				end if;
-				timestamp_buf <= timestamp;
 			end if;
 			-- A single stage of clock synchronization - most likely not enough!
 			current_inputs <= test_probes;

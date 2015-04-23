@@ -57,9 +57,9 @@ ARCHITECTURE behavior OF tb_top IS
 
 	--BiDirs
    signal tx : std_logic;
-   signal W1A : std_logic_vector(15 downto 0);
-   signal W1B : std_logic_vector(15 downto 0);
-   signal W2C : std_logic_vector(15 downto 0);
+   signal W1A : std_logic_vector(15 downto 0) := (others => '0');
+   signal W1B : std_logic_vector(15 downto 0) := (others => '0');
+   signal W2C : std_logic_vector(15 downto 0) := (others => '0');
 
    -- Clock period definitions
    constant clk_period : time := 31.25 ns;
@@ -68,7 +68,7 @@ ARCHITECTURE behavior OF tb_top IS
    signal clk2 : std_logic := '0';
 	signal read_buffer : std_logic;
 	signal in_port_uart : std_logic_vector(7 downto 0);
-   constant clk2_period : time := 20.83 ns;
+   constant clk2_period : time := 20.832 ns;
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
@@ -111,6 +111,10 @@ BEGIN
 
       wait;
    end process;
+	w1b(7) <= '0';	-- buttons
+	w1b(5) <= '1';
+	w1b(3) <= '0';
+	w1b(1) <= '1';
 	rx2 <= w1a(0);
 	uart_rx0: entity work.uart_rx
     Port map(

@@ -53,7 +53,7 @@ signal en_16_x_baud : std_logic := '0';
 signal read_buffer : std_logic;
 signal write_buffer : std_logic;
 signal buffer_full : std_logic;
-signal in_port_uart : std_logic_vector(7 downto 0);
+signal in_port_uart : std_logic_vector(7 downto 0) := (others => '0');
 
 signal address : std_logic_vector(9 downto 0);
 signal instruction : std_logic_vector(17 downto 0);
@@ -61,15 +61,15 @@ signal port_id : std_logic_vector(7 downto 0);
 signal write_strobe : std_logic;
 signal out_port : std_logic_vector(7 downto 0);
 signal read_strobe : std_logic;
-signal in_port : std_logic_vector(7 downto 0);
+signal in_port : std_logic_vector(7 downto 0) := (others => '0');
 signal reset : std_logic;
 signal proc_reset : std_logic;
 signal hard_reset : std_logic;
 
 signal clk2 : std_logic;
 
-signal buttons : STD_LOGIC_VECTOR (3 downto 0) := x"5";
-signal leds : STD_LOGIC_VECTOR (3 downto 0);
+signal buttons : STD_LOGIC_VECTOR (3 downto 0) := x"a";
+signal leds : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
 signal slave_out : STD_LOGIC_VECTOR (7 downto 0);
 signal slave_in : STD_LOGIC_VECTOR (7 downto 0);
 
@@ -77,8 +77,9 @@ signal slave_in : STD_LOGIC_VECTOR (7 downto 0);
 	signal spi_csn : std_logic;
 	signal spi_mosi : std_logic;
 	signal spi_miso : std_logic;
-	signal spimaster0_cs : std_logic;
-   SIGNAL wspi         : std_logic;
+	signal spi : std_logic_vector(3 downto 0) := (others => '1');
+	signal spimaster0_cs : std_logic := '0';
+   SIGNAL wspi         : std_logic := '0';
 signal master_out : std_logic_vector(7 downto 0);
 
 signal test_probes : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
@@ -97,7 +98,9 @@ begin
 	Port map( clk32 => clk2,
 		test_probes => test_probes,
 		rs232_tx => tx2);
-	test_probes <= x"0" & spi_clk & spi_csn & spi_mosi & spi_miso;
+--	test_probes <= x"0" & spi_clk & spi_csn & spi_mosi & spi_miso;
+	spi <= spi_clk & spi_csn & spi_mosi & spi_miso;
+	test_probes <= x"0" & spi;
 	w1a(0) <= tx2;
 	
 --DCM freq => synthesis freq
@@ -279,7 +282,7 @@ begin
 		out_port => slave_out
 	);
 	leds <= slave_out(3 downto 0);
-	slave_in <= x"a" & buttons;
+	slave_in <= x"5" & buttons;
 --	w1a(0) <= spi_miso when spi_csn='0' else 'Z';
 --	spi_mosi <= w1a(1);
 --	spi_clk <= w1a(2);
