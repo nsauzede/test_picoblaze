@@ -40,48 +40,53 @@ architecture Behavioral of my_fifo is
    signal memory : mem_array;
    
    signal rd_ptr : unsigned(ptr_len-1 downto 0) := (others => '0');
+   signal rd_ptr_max : unsigned(ptr_len-1 downto 0) := (others => '0');
    
 begin
     full  <= i_full;
     empty <= i_empty;
 
 clk_proc: process(clk)
-    begin
-        if rising_edge(clk) then
-            if rd = '1' and i_empty = '0' then
-               dout <= memory(to_integer(rd_ptr));
-            end if;
-            
-            if wr = '1' and i_full = '0' then
-                memory(fifo_depth-1 downto 1) <= memory(fifo_depth-2 downto 0);
-                memory(0) <= din;
-            end if;
-            
-            if rd = '1' and i_empty = '0' then
-                -- The read is actionable
-                if wr = '0' or i_full = '1' then
-                    -- no write this cycle, so decrement the  
-                    -- pointer or mark the fifo as empty
-                    if rd_ptr = 0 then
-                        i_empty <= '1'; -- fifo is now empty
-                    else
-                        rd_ptr <= rd_ptr - 1;
-                    end if;
-                    i_full <= '0';  -- can no longer be full
-                end if;
-            elsif wr = '1' and i_full = '0' then
-                -- the just write is actionable
-                if rd_ptr = 30 then
-                    i_full <= '1';
-                else
-                    i_full <= '0';
-                end if;
-                
-                if i_empty = '0' then
-                    rd_ptr <= rd_ptr + 1;
-                end if;
-                i_empty <= '0';
-            end if;
-        end if;
-    end process;
+	begin
+		if rising_edge(clk) then
+			if rd_ptr_max < rd_ptr then
+				rd_ptr_max <= rd_ptr;
+			end if;
+			
+			if rd = '1' and i_empty = '0' then
+				dout <= memory(to_integer(rd_ptr));
+			end if;
+			
+			if wr = '1' and i_full = '0' then
+				 memory(fifo_depth-1 downto 1) <= memory(fifo_depth-2 downto 0);
+				 memory(0) <= din;
+			end if;
+			
+			if rd = '1' and i_empty = '0' then
+				 -- The read is actionable
+				 if wr = '0' or i_full = '1' then
+					  -- no write this cycle, so decrement the  
+					  -- pointer or mark the fifo as empty
+					  if rd_ptr = 0 then
+							i_empty <= '1'; -- fifo is now empty
+					  else
+							rd_ptr <= rd_ptr - 1;
+					  end if;
+					  i_full <= '0';  -- can no longer be full
+				 end if;
+			elsif wr = '1' and i_full = '0' then
+				 -- the just write is actionable
+				 if rd_ptr = fifo_depth-2 then
+					  i_full <= '1';
+				 else
+					  i_full <= '0';
+				 end if;
+				 
+				 if i_empty = '0' then
+					  rd_ptr <= rd_ptr + 1;
+				 end if;
+				 i_empty <= '0';
+			end if;
+		end if;
+	end process;
 end Behavioral;
