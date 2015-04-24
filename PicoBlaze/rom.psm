@@ -74,8 +74,8 @@ loop1:
 	call spi_inout
 	call put2hex
 	rl data
-;	call delay_1s
-	call delay_1ms
+	call delay_1s
+;	call delay_1ms
 	jump loop1
 
 ; input : data=byte to send to spi

@@ -86,6 +86,7 @@ signal test_probes : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
 constant freq : integer := 48000000;
 constant div : integer := 4;		-- 48M/3M=16=0xf => 4 bits required
 constant baud : integer := 3000000;		-- ok 3M
+signal tx1 : std_logic;
 signal tx2 : std_logic;
 begin
 	log0: entity work.log_pins
@@ -101,7 +102,10 @@ begin
 --	test_probes <= x"0" & spi_clk & spi_csn & spi_mosi & spi_miso;
 	spi <= spi_clk & spi_csn & spi_mosi & spi_miso;
 	test_probes <= x"0" & spi;
-	w1a(0) <= tx2;
+--	w1a(0) <= tx2;
+--	tx <= tx1;
+	w1a(0) <= tx1;
+	tx <= tx2;
 	
 --DCM freq => synthesis freq
 --32 => 100
@@ -218,7 +222,7 @@ begin
 		reset_buffer => '0',
 --		en_16_x_baud => '1',
 		en_16_x_baud => en_16_x_baud,
-		serial_out => tx,
+		serial_out => tx1,
 		buffer_full => buffer_full,
 		buffer_half_full => open,
 --		clk => en_16_x_baud
