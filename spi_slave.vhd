@@ -57,6 +57,7 @@ signal byte_data_received : std_logic_vector(7 downto 0);
 signal rin_port : std_logic_vector(7 downto 0);
 signal rout_port : std_logic_vector(7 downto 0) := (others => '1');
 signal byte_data_sent : std_logic_vector(7 downto 0) := (others => '1');
+--signal byte_data_sent_r : std_logic_vector(7 downto 0) := (others => '1');
 signal cnt : unsigned(7 downto 0);
 begin
 	process(clk)
@@ -133,8 +134,10 @@ begin
 	begin
 		if rising_edge(clk) then
 			if SSEL_active='0' then
+--				byte_data_sent_r <= in_port;
 				byte_data_sent <= in_port;
 			else
+--				byte_data_sent <= byte_data_sent_r;
 				if SCK_risingedge='1' then
 					byte_data_sent <= byte_data_sent(6 downto 0) & '0';
 				end if;

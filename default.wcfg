@@ -18,7 +18,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="27" />
+   <WVObjectSize size="32" />
    <wvobject fp_name="/tb_top/uut/tx" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">tx</obj_property>
       <obj_property name="ObjectShortName">tx</obj_property>
@@ -38,6 +38,61 @@
    <wvobject fp_name="/tb_top/uut/spi" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">spi[3:0]</obj_property>
       <obj_property name="ObjectShortName">spi[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/log0/fifo0/memory" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">memory[7:0]</obj_property>
+      <obj_property name="ObjectShortName">memory[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="Reversed">false</obj_property>
+      <wvobject fp_name="/tb_top/uut/log0/fifo0/memory[7]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[7]</obj_property>
+         <obj_property name="ObjectShortName">memory[7]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/log0/fifo0/memory[6]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[6]</obj_property>
+         <obj_property name="ObjectShortName">memory[6]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/log0/fifo0/memory[5]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[5]</obj_property>
+         <obj_property name="ObjectShortName">memory[5]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/log0/fifo0/memory[4]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[4]</obj_property>
+         <obj_property name="ObjectShortName">memory[4]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/log0/fifo0/memory[3]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[3]</obj_property>
+         <obj_property name="ObjectShortName">memory[3]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/log0/fifo0/memory[2]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[2]</obj_property>
+         <obj_property name="ObjectShortName">memory[2]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/log0/fifo0/memory[1]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[1]</obj_property>
+         <obj_property name="ObjectShortName">memory[1]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/log0/fifo0/memory[0]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[0]</obj_property>
+         <obj_property name="ObjectShortName">memory[0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/log0/wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">wr</obj_property>
+      <obj_property name="ObjectShortName">wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/log0/din" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">din[39:0]</obj_property>
+      <obj_property name="ObjectShortName">din[39:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/log0/timestamp" type="array" db_ref_id="1">
@@ -87,6 +142,11 @@
       <obj_property name="ObjectShortName">nchanges[7:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
+   <wvobject fp_name="/tb_top/uut/log0/nchanges_max" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">nchanges_max[7:0]</obj_property>
+      <obj_property name="ObjectShortName">nchanges_max[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
    <wvobject fp_name="/tb_top/uut/log0/count" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">count[3:0]</obj_property>
       <obj_property name="ObjectShortName">count[3:0]</obj_property>
@@ -113,6 +173,11 @@
    <wvobject fp_name="/tb_top/rx2" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">rx2</obj_property>
       <obj_property name="ObjectShortName">rx2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/log0/count" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">count[3:0]</obj_property>
+      <obj_property name="ObjectShortName">count[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/address" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">address[9:0]</obj_property>

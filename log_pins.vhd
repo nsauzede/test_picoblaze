@@ -22,31 +22,37 @@ entity log_pins is
 end log_pins;
 
 architecture Behavioral of log_pins is
+	constant ts_len : integer := 32;
+
+	constant ptr_len : integer := 5;
+--	constant fifo_len : integer := 9;
+--	constant fifo_len : integer := 10*(ts_len+probe_len)/8;
+	constant fifo_len : integer := ts_len+probe_len;
+--	constant fifo_depth : integer := 32;
+	constant fifo_depth : integer := 8;
+	signal wr    : STD_LOGIC := '0';
+	signal din   : STD_LOGIC_VECTOR(fifo_len-1 downto 0);
+	signal empty : STD_LOGIC;
+	signal full  : STD_LOGIC;
+	signal rd    : STD_LOGIC;
+	signal dout  : STD_LOGIC_VECTOR(fifo_len-1 downto 0);
+
    signal current_inputs        : std_logic_vector(probe_len-1 downto 0)     := (others => '1');
    signal last_sent             : std_logic_vector(probe_len-1 downto 0)     := (others => '1');
-   signal last_changed             : std_logic_vector(probe_len-1 downto 0)     := (others => '0');
+   signal last_changed             : std_logic_vector(probe_len-1 downto 0)     := (others => '1');
    signal nchanges : unsigned(7 downto 0)              := (others => '0');
+   signal nchanges_max : unsigned(7 downto 0)              := (others => '0');
    constant clocks_ticks_per_baud : unsigned(div_len-1 downto 0)             := to_unsigned(clk_freq/baud_rate,div_len);
    signal count                 : unsigned(div_len-1 downto 0)             := (others => '0');
-	constant ts_len : integer := 32;
---	constant ts_len : integer := 16;
---	constant ts_len : integer := 4;		--simulate 4 bytes=32 bits binary
---	constant ts_len : integer := 0;
---   signal message               : std_logic_vector(10*(ts_len+probe_len+2)-1 downto 0):= (others => '1');
+	type message_array_t is array(7 downto 0) of std_logic_vector(10*(ts_len+probe_len)/8-1 downto 0);
+--   signal fifo : message_array_t;
    signal message               : std_logic_vector(10*(ts_len+probe_len)/8-1 downto 0):= (others => '1');
 	constant nbits_to_send : integer := 12;
---   signal bits_to_send          : unsigned(nbits_to_send-1 downto 0)              := to_unsigned(message'high,nbits_to_send);
    signal bits_to_send          : unsigned(nbits_to_send-1 downto 0)              := (others => '0');
---   signal startup               : std_logic                         := '1';	-- this one works but lower freq
---   signal nstartup               : std_logic                         := '0';	-- this one works but lower freq
---   signal nstartup               : std_logic;											-- this one leads to better freq, but startup doesn't work (no update at reset)
-	
 	signal timestamp : unsigned(ts_len-1 downto 0) := (others => '0');
 	signal timestamp_buf : unsigned(ts_len-1 downto 0) := (others => '1');
 begin
-  -- The TX output is the LSB of the message buffer
-  rs232_tx <= message(0);
-
+	rs232_tx <= message(0);
 	process(clk32)
    begin
       if rising_edge(clk32) then
@@ -55,15 +61,28 @@ begin
 	end process;
 	clk_proc: process(clk32)
 	begin
+		if nchanges > nchanges_max then
+			nchanges_max <= nchanges;
+		end if;
       if rising_edge(clk32) then
+			wr <= '0';
 			if current_inputs /= last_changed then
 				last_changed <= current_inputs;
 				nchanges <= nchanges+1;
+					for i in 0 to timestamp'length/8-1 loop
+--						din((timestamp'length/8-1-i)*10+9 downto (timestamp'length/8-1-i)*10) <= "1" & std_logic_vector(timestamp((i+1)*8-1 downto i*8)) & "0";
+--						din((timestamp'length/8-1-i)*8+7 downto (timestamp'length/8-1-i)*8) <= std_logic_vector(timestamp((i+1)*8-1 downto i*8));
+						din((probe_len/8+i)*8+7 downto (probe_len/8+i)*8) <= std_logic_vector(timestamp((i+1)*8-1 downto i*8));
+					end loop;
+					for i in 0 to probe_len/8-1 loop
+--						din((ts_len/8+i)*10+9 downto (ts_len/8+i)*10) <= "1" & current_inputs((i+1)*8-1 downto i*8) & "0";
+--						din((ts_len/8+i)*8+7 downto (ts_len/8+i)*8) <= current_inputs((i+1)*8-1 downto i*8);
+						din((probe_len/8-1-i)*8+7 downto (probe_len/8-1-i)*8) <= current_inputs((i+1)*8-1 downto i*8);
+					end loop;
+					wr <= '1';
 			end if;
-           -- are we sending bits?
 			if bits_to_send /= 0 then
 				if count = clocks_ticks_per_baud-1 then
-					-- Move on to the next bit
 					message      <= '1' & message(message'high downto 1);
 					bits_to_send <= bits_to_send - 1;
 					count        <= (others => '0');
@@ -72,34 +91,34 @@ begin
 				end if;
 			else
 				timestamp_buf <= timestamp;
-				-- Are the inputs still the same as last time?
---               if current_inputs /= last_sent or nstartup = '0' then
---				if current_inputs /= last_sent or timestamp_buf = 0 then
 				if current_inputs /= last_sent then
 					nchanges <= (others => '0');
---						timestamp <= (others => '0');
---               if current_inputs /= last_sent or startup = '1' then
---					for i in 0 to timestamp_buf'length/8-1 loop
 					for i in 0 to timestamp'length/8-1 loop
---						message((timestamp_buf'length/8-1-i)*10+9 downto (timestamp_buf'length/8-1-i)*10) <= "1" & std_logic_vector(timestamp_buf((i+1)*8-1 downto i*8)) & "0";
 						message((timestamp'length/8-1-i)*10+9 downto (timestamp'length/8-1-i)*10) <= "1" & std_logic_vector(timestamp((i+1)*8-1 downto i*8)) & "0";
---						message((timestamp_buf'length/8-1-i)*10+9 downto (timestamp_buf'length/8-1-i)*10) <= "1" & x"ee" & "0";
 					end loop;
 					for i in 0 to probe_len/8-1 loop
 						message((ts_len/8+i)*10+9 downto (ts_len/8+i)*10) <= "1" & current_inputs((i+1)*8-1 downto i*8) & "0";
 					end loop;
---                  message(message'length-11 downto message'length-20) <= "1000010100"; -- ASCII 10, new Line.
---                  message(message'length-1 downto message'length-10) <= "1000011010"; -- ASCII 13, new Line.
 					bits_to_send <= to_unsigned(message'length,bits_to_send'length);
 					last_sent    <= current_inputs;
 					count        <= (others => '0');
---                  nstartup      <= '1';
---                  startup      <= '0';
---				else
 				end if;
 			end if;
-			-- A single stage of clock synchronization - most likely not enough!
 			current_inputs <= test_probes;
 		end if;
 	end process;
+	fifo0: entity work.my_fifo
+		generic map(
+			ptr_len => ptr_len,
+			fifo_len => fifo_len,
+			fifo_depth => fifo_depth
+		)
+		Port map( clk => clk32,
+			wr => wr,
+			din => din,
+			empty => empty,
+			full => full,
+			rd => rd,
+			dout => dout
+		);
 end Behavioral;
