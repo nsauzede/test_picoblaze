@@ -11,6 +11,7 @@ int main()
 #define NDATA 8
 	int ndata = NDATA;
 	int i;
+#ifdef USE_WIRES
 	char alias[NDATA];
 	for (i = 0; i < ndata; i++)
 	{
@@ -19,6 +20,9 @@ int main()
 		name[strlen(name) - 1] = alias[i];
 		printf( "$var wire 1 %c %s $end\n", alias[i], name);
 	}
+#else
+	printf( "$var wire %d 0 0 $end\n", ndata);
+#endif
 	printf( "$upscope $end\n");
 	printf( "$enddefinitions $end\n");
 	while (!feof( stdin))
@@ -38,10 +42,20 @@ int main()
 		uint32_t data = 0;
 		sscanf( dt, "%x", &data);
 		printf( "#%" PRIu32 "\n", timestamp);
+#ifndef USE_WIRES
+		printf( "b");
+#endif
 		for (i = 0; i < ndata; i++)
 		{
+#ifdef USE_WIRES
 			printf( "%01u%c\n", (data & (1 << i)) != 0, alias[i]);
+#else
+			printf( "%01u", (data & (1 << (ndata - 1 - i))) != 0);
+#endif
 		}
+#ifndef USE_WIRES
+		printf( " 0\n");
+#endif
 //		printf( "ts=%08" PRIx32 " v=%02" PRIx8 "\n", timestamp, data);
 	}
 	return 0;

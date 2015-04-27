@@ -105,6 +105,7 @@ begin
 --	w1a(0) <= tx2;
 --	tx <= tx1;
 	w1a(0) <= tx1;
+	w1a(4 downto 1) <= spi;
 	tx <= tx2;
 	
 --DCM freq => synthesis freq

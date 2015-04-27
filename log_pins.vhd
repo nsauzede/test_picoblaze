@@ -89,7 +89,8 @@ begin
 				for i in 0 to probe_len/8-1 loop
 --					din((ts_len/8+i)*10+9 downto (ts_len/8+i)*10) <= "1" & current_inputs((i+1)*8-1 downto i*8) & "0";
 --					din((ts_len/8+i)*8+7 downto (ts_len/8+i)*8) <= current_inputs((i+1)*8-1 downto i*8);
-					din((probe_len/8-1-i)*8+7 downto (probe_len/8-1-i)*8) <= current_inputs((i+1)*8-1 downto i*8);
+--					din((probe_len/8-1-i)*8+7 downto (probe_len/8-1-i)*8) <= current_inputs((i+1)*8-1 downto i*8);
+					din(i*8+7 downto i*8) <= current_inputs((i+1)*8-1 downto i*8);
 				end loop;
 				wr_r <= '1';
 			end if;
@@ -116,6 +117,7 @@ begin
 					bits_to_send <= to_unsigned(message'length,bits_to_send'length);
 					for i in 0 to dout'length/8-1 loop
 						message((dout'length/8-1-i)*10+9 downto (dout'length/8-1-i)*10) <= "1" & std_logic_vector(dout((i+1)*8-1 downto i*8)) & "0";
+--						message(i*10+9 downto i*10) <= "1" & std_logic_vector(dout((i+1)*8-1 downto i*8)) & "0";
 					end loop;
 --					last_sent    <= current_inputs;
 					count        <= (others => '0');
