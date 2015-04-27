@@ -76,6 +76,10 @@ loop1:
 	rl data
 	call delay_1s
 ;	call delay_1ms
+
+loop2:
+	jump loop2
+
 	jump loop1
 
 ; input : data=byte to send to spi

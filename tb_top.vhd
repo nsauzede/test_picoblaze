@@ -118,7 +118,7 @@ BEGIN
 	rx2 <= w1a(0);
 	uart_rx0: entity work.uart_rx
     Port map(
-		serial_in => rx2,
+		serial_in => tx,
 		data_out => in_port_uart,
 		read_buffer => read_buffer,
 		reset_buffer => '0',
