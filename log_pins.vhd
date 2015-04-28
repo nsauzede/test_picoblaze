@@ -18,7 +18,8 @@ entity log_pins is
 	);
     Port ( clk32       : in  STD_LOGIC;
            test_probes : in  STD_LOGIC_VECTOR (probe_len-1 downto 0);
-           rs232_tx    : out  STD_LOGIC);
+           rs232_tx    : out  STD_LOGIC;
+			  reset : in std_logic);
 end log_pins;
 
 architecture Behavioral of log_pins is
@@ -60,16 +61,32 @@ begin
 	process(clk32)
    begin
       if rising_edge(clk32) then
+			if reset='1' then
+				timestamp <= (others => '0');
+			else
+			
 --			startup <= '0';
 			timestamp <= timestamp + 1;
+			end if;
 		end if;
 	end process;
 	clk_proc: process(clk32)
 	begin
+      if rising_edge(clk32) then
+			if reset='1' then
+				current_inputs <= (others => '1');
+				last_changed <= (others => '1');
+				nchanges <= (others => '0');
+				nchanges_max <= (others => '0');
+				bits_to_send <= (others => '0');
+				count <= (others => '0');
+				wr <= '0';
+				wr_r <= '0';
+			else
+
 		if nchanges > nchanges_max then
 			nchanges_max <= nchanges;
 		end if;
-      if rising_edge(clk32) then
 			wr <= '0';
 			if wr_r='1' then
 				if full='0' then
@@ -138,6 +155,7 @@ begin
 --				end if;
 			end if;
 			current_inputs <= test_probes;
+			end if;
 		end if;
 	end process;
 	
@@ -153,6 +171,7 @@ begin
 			empty => empty,
 			full => full,
 			rd => rd,
-			dout => dout
+			dout => dout,
+			reset => reset
 		);
 end Behavioral;

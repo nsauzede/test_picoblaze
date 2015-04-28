@@ -11,6 +11,7 @@ CONSTANT spi_cs_ctl_port,F0
 
 CONSTANT UARTavailable,01
 
+; these reg0-4 are clobbered by delay_* functions
 NAMEREG s0,reg0
 NAMEREG s1,reg1
 NAMEREG s2,reg2
@@ -67,18 +68,22 @@ ret_main:
 	jump main
 
 loop:
-	load data,11
+	load s5,02
+;	load data,11
+	load data,41
 loop1:
 	load s0,CHAR_EQUAL
 	call putc
 	call spi_inout
 	call put2hex
 	rl data
-	call delay_1s
+;	call delay_1s
 ;	call delay_1ms
+	call delay_40us
 
+	sub s5,01
 loop2:
-	jump loop2
+	jump Z,loop2
 
 	jump loop1
 

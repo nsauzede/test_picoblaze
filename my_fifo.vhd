@@ -29,7 +29,8 @@ entity my_fifo is
            empty : out STD_LOGIC;
            full  : out STD_LOGIC;
            rd    : in  STD_LOGIC;
-           dout  : out STD_LOGIC_VECTOR(fifo_len-1 downto 0));
+           dout  : out STD_LOGIC_VECTOR(fifo_len-1 downto 0);
+			  reset : in std_logic);
 end my_fifo;
 
 architecture Behavioral of my_fifo is
@@ -49,6 +50,13 @@ begin
 clk_proc: process(clk)
 	begin
 		if rising_edge(clk) then
+			if reset='1' then
+				i_full <= '0';
+				i_empty <= '1';
+				rd_ptr <= (others => '0');
+				rd_ptr_max <= (others => '0');
+			else
+			
 			if rd_ptr_max < rd_ptr then
 				rd_ptr_max <= rd_ptr;
 			end if;
@@ -86,6 +94,8 @@ clk_proc: process(clk)
 					  rd_ptr <= rd_ptr + 1;
 				 end if;
 				 i_empty <= '0';
+			end if;
+			
 			end if;
 		end if;
 	end process;

@@ -98,7 +98,8 @@ begin
 	)
 	Port map( clk32 => clk2,
 		test_probes => test_probes,
-		rs232_tx => tx2);
+		rs232_tx => tx2,
+		reset => hard_reset);
 --	test_probes <= x"0" & spi_clk & spi_csn & spi_mosi & spi_miso;
 	spi <= spi_clk & spi_csn & spi_mosi & spi_miso;
 	test_probes <= x"0" & spi;
@@ -288,7 +289,8 @@ begin
 	);
 	leds <= slave_out(3 downto 0);
 --	slave_in <= x"5" & buttons;
-	slave_in <= x"55";
+--	slave_in <= x"55";
+	slave_in <= x"62";
 --	w1a(0) <= spi_miso when spi_csn='0' else 'Z';
 --	spi_mosi <= w1a(1);
 --	spi_clk <= w1a(2);
