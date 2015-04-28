@@ -21,7 +21,7 @@ int main()
 		printf( "$var wire 1 %c %s $end\n", alias[i], name);
 	}
 #else
-	printf( "$var wire %d 0 0 $end\n", ndata);
+	printf( "$var wire %d 0 data $end\n", ndata);
 #endif
 	printf( "$upscope $end\n");
 	printf( "$enddefinitions $end\n");
