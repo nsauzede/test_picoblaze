@@ -129,4 +129,8 @@ BEGIN
 		clk => clk2
 	);
 
+	spi0: entity work.spi_box
+	Port map(
+         spi => w1a(3 downto 0)
+	);
 END;

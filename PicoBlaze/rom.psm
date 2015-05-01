@@ -26,6 +26,7 @@ coldstart:
 
 ;	jump spi_inout				; for simulation
 	call delay_1ms
+;	call delay_40us
 	jump loop					; for simulation
 
 	call delay_1ms				; give time to external logic to settle..
@@ -78,8 +79,9 @@ loop1:
 	call put2hex
 	rl data
 ;	call delay_1s
-;	call delay_1ms
-	call delay_40us
+;	call delay_20ms
+	call delay_1ms
+;	call delay_40us
 
 	sub s5,01
 loop2:
@@ -91,7 +93,9 @@ loop2:
 ; return in s0
 ; clobbers dummy
 spi_inout:
-	load dummy,ff
+	load dummy,ff	; ff is ok => 93kHz
+;	load dummy,01	; 01 is ok => 12MHz
+;	load dummy,00	; 00 is KO => 24MHz too fast, shifts slave output 1 bit right
 	output dummy,spi_clk_div_port
 	load dummy,fe
 	output dummy,spi_cs_ctl_port

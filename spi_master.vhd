@@ -46,7 +46,8 @@ architecture Behavioral of spi_master is
 
     -- start up in idle state
     signal slave_cs_register  : std_logic := '1';
-    signal slave_clk_register : std_logic := '1'; 
+    signal slave_clk_register : std_logic := '1';		--MODE3
+--    signal slave_clk_register : std_logic := '0';	--MODE0
     signal slave_mosi_register: std_logic := '0';
     signal data_out_sr        : std_logic_vector(7 downto 0) := (others => '0'); -- shifted left ie MSB <- LSB
     signal data_in_sr         : std_logic_vector(7 downto 0) := (others => '0'); -- shifted left ie MSB <- LSB
@@ -83,7 +84,8 @@ begin
         if rising_edge(clk) then
             if reset = '1' then
                 slave_cs_register <= '1';
-                slave_clk_register <= '1';
+                slave_clk_register <= '1';	--MODE3
+--                slave_clk_register <= '0';	--MODE0
                 slave_mosi_register <= '0';
                 data_out_sr <= (others => '0');
                 data_in_sr <= (others => '0');

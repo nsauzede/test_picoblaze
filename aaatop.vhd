@@ -105,8 +105,8 @@ begin
 	test_probes <= x"0" & spi;
 --	w1a(0) <= tx2;
 --	tx <= tx1;
-	w1a(0) <= tx1;
-	w1a(4 downto 1) <= spi;
+	w1a(15) <= tx1;
+	w1a(3 downto 0) <= spi;
 	tx <= tx2;
 	
 --DCM freq => synthesis freq

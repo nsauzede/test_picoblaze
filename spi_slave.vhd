@@ -32,7 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity spi_slave is
     Port ( 
 	clk : in std_logic;
-	SCK : in std_logic;
+	SCK : in std_logic;			--MODE3
 	MOSI : in std_logic;
 	MISO : out std_logic;
 	SSEL : in std_logic;

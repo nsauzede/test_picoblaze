@@ -1,0 +1,29 @@
+[*]
+[*] GTKWave Analyzer v3.3.64 (w)1999-2014 BSI
+[*] Thu Apr 30 20:28:42 2015
+[*]
+[dumpfile] "C:\nico\perso\hack\hackerspace\fpga\nico\test_picoblaze\log.vcd"
+[dumpfile_mtime] "Thu Apr 30 20:24:28 2015"
+[dumpfile_size] 1671
+[savefile] "C:\nico\perso\hack\hackerspace\fpga\nico\test_picoblaze\default.gtkw"
+[timestart] 0
+[size] 1232 394
+[pos] 141 226
+*-10.041558 0 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 211
+[signals_width] 78
+[sst_expanded] 1
+[sst_vpaned_height] 82
+@28
+logic.data7
+logic.data6
+logic.data5
+logic.data4
+logic.data3
+@29
+logic.data2
+@28
+logic.data1
+logic.data0
+[pattern_trace] 1
+[pattern_trace] 0

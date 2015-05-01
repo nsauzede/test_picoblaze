@@ -29,7 +29,8 @@ architecture Behavioral of log_pins is
 --	constant fifo_len : integer := 9;
 --	constant fifo_len : integer := 10*(ts_len+probe_len)/8;
 	constant fifo_len : integer := ts_len+probe_len;
-	constant fifo_depth : integer := 32;
+	constant fifo_depth : integer := 64;
+--	constant fifo_depth : integer := 32;
 --	constant fifo_depth : integer := 16;
 	signal wr    : STD_LOGIC := '0';
 	signal wr_r    : STD_LOGIC := '0';
