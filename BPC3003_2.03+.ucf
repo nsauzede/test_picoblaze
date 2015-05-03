@@ -14,7 +14,7 @@
 NET "clk" LOC = "P89" | IOSTANDARD = LVCMOS25 | PERIOD = 31.25ns ;
 
 # Wing1 Column A
-NET "W1A<0>" LOC = "P18" ;	
+NET "W1A<0>" LOC = "P18"  | PULLUP;	# PULLUP because used as SPI MISO
 NET "W1A<1>" LOC = "P23" ;  	
 NET "W1A<2>" LOC = "P26" ;  	
 NET "W1A<3>" LOC = "P33" ;  	

@@ -29,8 +29,27 @@ int main()
 	while (!feof( stdin))
 	{
 		char line[2*(4+1)+2+1];
+#if 0
 		if (!fgets( line, sizeof( line), stdin))
 			break;
+#else
+		int pos = 0;
+#define WANTED (2*(4+1))
+		while (pos < WANTED)
+		{
+			line[pos] = fgetc( stdin);
+			if (line[pos] == EOF)
+				break;
+			if ((line[pos] == ' ') ||
+				(line[pos] == '\n')
+			   )
+				continue;
+			pos++;
+		}
+		if (pos < WANTED)
+			break;
+		line[pos] = 0;
+#endif
 //		printf( "line=%s\n", line);
 		char ts[] = "0xYYYYYYYY";
 		memcpy( ts + 2, line, 2*4);

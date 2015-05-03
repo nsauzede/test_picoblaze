@@ -144,5 +144,6 @@ begin
 			end if;
 		end if;
 	end process;
-	MISO <= byte_data_sent(7);
+--	MISO <= byte_data_sent(7);
+	MISO <= byte_data_sent(7) when SSEL_active='1' else 'Z';		--KO : 'Z' triggers noise log_pins detection
 end Behavioral;
