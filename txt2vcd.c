@@ -4,9 +4,11 @@
 
 int main()
 {
+	uint32_t freq = 48000000;
 //	printf( "$date the date $end\n");
 //	printf( "$version the version $end\n");
 	printf( "$timescale 1ns $end\n");
+	uint32_t scale = 1000000000 / freq;		// time unit is ns
 	printf( "$scope module logic $end\n");
 #define NDATA 8
 	int ndata = NDATA;
@@ -59,6 +61,7 @@ int main()
 //		printf( "dt=%s\n", dt);
 		uint32_t timestamp = 0;
 		sscanf( ts, "%" SCNx32, &timestamp);
+		timestamp *= scale;
 #if 1
 		static uint32_t first_timestamp = 0xffffffff;
 		if (first_timestamp == 0xffffffff)
