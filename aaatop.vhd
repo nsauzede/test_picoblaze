@@ -84,7 +84,7 @@ signal master_out : std_logic_vector(7 downto 0);
 
 signal test_probes : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
 constant freq : integer := 48000000;
-constant div : integer := 4;		-- 48M/3M=16=0xf => 4 bits required
+constant div_len : integer := 5;		-- 48M/3M=16=0x10 => 5 bits required
 constant baud : integer := 3000000;		-- ok 3M
 signal tx1 : std_logic;
 signal tx2 : std_logic;
@@ -92,7 +92,7 @@ begin
 	log0: entity work.log_pins
 	 generic map(
 		baud_rate => baud,
-		div_len => div,
+		div_len => div_len,
 		clk_freq => freq,
 		probe_len => test_probes'length
 	)
