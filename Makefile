@@ -9,6 +9,9 @@ update: compile
 open:
 	start test_picoblaze.xise
 
+prog: working/aaatop.bit
+	papilio-prog -f $<
+
 clean:
 	make -C PicoBlaze clean
 

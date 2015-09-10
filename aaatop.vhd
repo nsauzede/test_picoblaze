@@ -103,11 +103,15 @@ begin
 --	test_probes <= x"0" & spi_clk & spi_csn & spi_mosi & spi_miso;
 	spi <= spi_clk & spi_csn & spi_mosi & spi_miso;
 	test_probes <= x"0" & spi;
---	w1a(0) <= tx2;
---	tx <= tx1;
-	w1a(15) <= tx1;
+
+------------------------------
+	w1a(15) <= tx2;		-- tx2 is probe uart out
+	tx <= tx1;			-- tx1 is picoblaze uart out
+------------------------------
+--	w1a(15) <= tx1;	-- tx1 is picoblaze uart out
+--	tx <= tx2;			-- tx2 is probe uart out
+
 	w1a(3 downto 0) <= spi;
-	tx <= tx2;
 	
 --DCM freq => synthesis freq
 --32 => 100
