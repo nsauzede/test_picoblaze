@@ -80,7 +80,8 @@ xdl -ncd2xdl $NCD_FILE
 # STAGE 2
 # Extrate instance and location
 
-AWK_OUT=$(awk -v rom="$ROM_NAME" '{
+# Note : we prepend LD_LIBRARY_PATH because ISE settings64.sh seem to break libs ABI
+LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH} AWK_OUT=$(awk -v rom="$ROM_NAME" '{
 	if ($1 == "inst" && $2 ~ rom ) {
 		print $2, $5;
 	}

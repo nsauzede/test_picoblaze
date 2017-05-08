@@ -4,7 +4,7 @@ all:
 compile:
 	make -C PicoBlaze clean all
 update: compile
-	(cd working;../bitUpdate.bash ram_1024_x_18 aaatop.ncd ../PicoBlaze/rom.mem aaatop.bit; start download.bit)
+	(cd working;../bitUpdate.bash ram_1024_x_18 aaatop.ncd ../PicoBlaze/rom.mem aaatop.bit; papilio-prog -f download.bit)
 
 open:
 	start test_picoblaze.xise

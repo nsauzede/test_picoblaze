@@ -25,9 +25,9 @@ ADDRESS 000
 coldstart:
 
 ;	jump spi_inout				; for simulation
-	call delay_1ms
+;	call delay_1ms
 ;	call delay_40us
-	jump loop					; for simulation
+;	jump loop					; for simulation
 
 	call delay_1ms				; give time to external logic to settle..
 
