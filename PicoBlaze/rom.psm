@@ -31,6 +31,12 @@ coldstart:
 
 	call delay_1ms				; give time to external logic to settle..
 
+;	load dummy,ff	; ff is ok => 93kHz
+;	load dummy,3b	; 3b is ?? => 400kHz?=48000000/(2*(val+1)) => val=48000/400/2-1=0x3b
+;	load dummy,01	; 01 is ok => 12MHz
+;	load dummy,00	; 00 is KO => 24MHz too fast, shifts slave output 1 bit right
+;	output dummy,spi_clk_div_port
+
 	call crlf
 	load s0,CHAR_EXCLA
 	call putc
@@ -60,8 +66,12 @@ main:
 	call getc
 	compare data,CHAR_s
 	jump Z,spi_out
+	compare data,CHAR_c
+	jump Z,set_cs
 	compare data,CHAR_l
 	jump Z,loop
+	compare data,CHAR_r
+	jump Z,sd_read
 	compare data,CHAR_QUEST
 	jump Z,help
 ret_main:
@@ -93,20 +103,21 @@ loop2:
 ; return in s0
 ; clobbers dummy
 spi_inout:
-	load dummy,ff	; ff is ok => 93kHz
+;	load dummy,ff	; ff is ok => 93kHz
+	load dummy,3b	; 3b is ?? => 400kHz?=48000000/(2*(val+1)) => val=48000/400/2-1=0x3b
 ;	load dummy,01	; 01 is ok => 12MHz
 ;	load dummy,00	; 00 is KO => 24MHz too fast, shifts slave output 1 bit right
 	output dummy,spi_clk_div_port
-	load dummy,fe
-	output dummy,spi_cs_ctl_port
+;	load dummy,fe
+;	output dummy,spi_cs_ctl_port
 	output data,spi_transmit_port
 spi_inout1:
 	input dummy,spi_status_port
 	test dummy,01
 	jump NZ,spi_inout1
 	input s0,spi_receive_port
-	load dummy,ff
-	output dummy,spi_cs_ctl_port
+;	load dummy,ff
+;	output dummy,spi_cs_ctl_port
 	return
 
 spi_out:
@@ -117,6 +128,163 @@ spi_out:
 	call putc
 	call spi_inout
 	call put2hex
+	jump ret_main
+
+; init, 
+; CMD00 : 40 00 00 00 00 95 => repl 01 (warning! SPI MODE0 for SDCARD !!)
+; CMD08 : 48 00 00 01 aa 87 => repl 01 00 00 01 AA (check voltage range -- SDC v2 only)
+; CMD58 : 7a 00 00 00 00 74 => repl 01 00 FF 80 00 (read OCR)
+; CMD01 : 41 00 00 00 00 00 => repl 01 (not init) 
+; CMD55 : 77 00 00 00 00 00 => repl 01 (ACMD prefix)
+;ACMD41 : 69 00 00 00 00 00 => repl 
+; CMD17 : 51 00 00 00 00 00 => repl 01 (read block)
+set_cs:
+	load dummy,3b	; 3b is ?? => 400kHz?=48000000/(2*(val+1)) => val=48000/400/2-1=0x3b
+	output dummy,spi_clk_div_port
+	load s0,CHAR_EQUAL
+	call putc
+	call get2hex
+	output data,spi_cs_ctl_port
+	jump ret_main
+
+sd_read:
+	load dummy,3b	; 3b is ?? => 400kHz?=48000000/(2*(val+1)) => val=48000/400/2-1=0x3b
+	output dummy,spi_clk_div_port
+	load dummy,ff
+	output dummy,spi_cs_ctl_port
+	load s5,12
+	load data,ff
+sd_read_loop_init0:
+	call spi_inout
+	sub s5,01
+	jump NZ,sd_read_loop_init0
+
+	load dummy,fe
+	output dummy,spi_cs_ctl_port
+
+	load data,40
+	call spi_inout
+	load data,00
+	call spi_inout
+	call spi_inout
+	call spi_inout
+	call spi_inout
+	load data,95
+	call spi_inout
+	load data,ff
+	call spi_inout
+	call spi_inout
+	compare s0,01
+	jump NZ,ret_main
+
+	load data,48
+	call spi_inout
+	load data,00
+	call spi_inout
+	call spi_inout
+	load data,01
+	call spi_inout
+	load data,aa
+	call spi_inout
+	load data,87
+	call spi_inout
+	load data,ff
+	call spi_inout
+	call spi_inout
+	compare s0,01
+	jump NZ,ret_main
+	call spi_inout
+	call spi_inout
+	call spi_inout
+	call spi_inout
+
+	load s5,255
+sd_read_loop_init1:
+	load data,77
+	call spi_inout
+	load data,00
+	call spi_inout
+	call spi_inout
+	call spi_inout
+	call spi_inout
+	load data,65
+	call spi_inout
+	load data,ff
+	call spi_inout
+	call spi_inout
+	compare s0,01
+	jump NZ,ret_main
+	load data,69
+	call spi_inout
+	load data,40
+	call spi_inout
+	load data,00
+	call spi_inout
+	call spi_inout
+	call spi_inout
+	load data,77
+	call spi_inout
+	load data,ff
+	call spi_inout
+	call spi_inout
+	compare s0,00
+	jump Z,sd_read_loop_init1_done
+	sub s5,01
+	jump Z,ret_main
+	call delay_20ms
+	jump sd_read_loop_init1
+sd_read_loop_init1_done:
+
+	load data,51
+	call spi_inout
+	load data,00
+	call spi_inout
+	load data,00
+	call spi_inout
+	load data,00
+	call spi_inout
+	load data,00
+	call spi_inout
+	load data,75
+	call spi_inout
+	load data,ff
+	call spi_inout
+	call spi_inout
+	compare s0,00
+	jump NZ,ret_main
+	call crlf
+wait_token:
+	load data,ff
+	call spi_inout
+	compare s0,fe
+	jump Z,sd_read_loop_begin
+	jump wait_token
+sd_read_loop_begin:
+	load s4,02
+sd_read_loop_read0:
+	load s5,00		; 00 means 256
+sd_read_loop_read1:
+	load data,ff
+	call spi_inout
+	call put2hex
+	sub s5,01
+	jump NZ,sd_read_loop_read1
+	sub s4,01
+	jump NZ,sd_read_loop_read0
+	load data,ff
+	call crlf
+	call spi_inout	; reads two-..
+	call put2hex
+	call spi_inout	; ..bytes checksum
+	call put2hex
+
+	load data,ff
+	call spi_inout
+	load dummy,ff
+	output dummy,spi_cs_ctl_port
+	load data,ff
+	call spi_inout
+
 	jump ret_main
 
 help:
@@ -163,6 +331,25 @@ help:
 	load s0,CHAR_u
 	call putc
 	load s0,CHAR_t
+	call putc
+
+	call crlf
+	load s0,CHAR_r
+	call putc
+	call space
+	load s0,CHAR_r
+	call putc
+	load s0,CHAR_s
+	call putc
+	load s0,CHAR_d
+	call putc
+	load s0,CHAR_c
+	call putc
+	load s0,CHAR_a
+	call putc
+	load s0,CHAR_r
+	call putc
+	load s0,CHAR_d
 	call putc
 	jump ret_main
 	
@@ -229,6 +416,16 @@ space:
 	load s0,CHAR_SPACE
 	jump putc
 
+; clobbers s0, dummy
+dot:
+	load s0,CHAR_DOT
+	jump putc
+
+; clobbers s0, dummy
+o:
+	load s0,CHAR_o
+	jump putc
+
 ; return in data
 getc_ne:
 	load data,00
@@ -291,6 +488,8 @@ ADDRESS 3ff
 
 CONSTANT CHAR_A,41
 CONSTANT CHAR_B,42
+CONSTANT CHAR_c,63
+CONSTANT CHAR_d,64
 CONSTANT CHAR_e,65
 CONSTANT CHAR_h,68
 CONSTANT CHAR_i,69
@@ -305,6 +504,7 @@ CONSTANT CHAR_t,74
 CONSTANT CHAR_u,75
 CONSTANT CHAR_UNDER,5f
 CONSTANT CHAR_SPACE,20
+CONSTANT CHAR_DOT,2e
 CONSTANT CHAR_EQUAL,3d
 CONSTANT CHAR_GREATER,3E
 CONSTANT CHAR_EXCLA,21

@@ -73,10 +73,10 @@ signal leds : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
 signal slave_out : STD_LOGIC_VECTOR (7 downto 0);
 signal slave_in : STD_LOGIC_VECTOR (7 downto 0);
 
-	signal spi_clk : std_logic;
-	signal spi_csn : std_logic;
-	signal spi_mosi : std_logic;
-	signal spi_miso : std_logic;
+	signal spi_clk : std_logic := '1';
+	signal spi_csn : std_logic := '1';
+	signal spi_mosi : std_logic := '1';
+	signal spi_miso : std_logic := '1';
 	signal spi : std_logic_vector(3 downto 0) := (others => '1');
 	signal spimaster0_cs : std_logic := '0';
    SIGNAL wspi         : std_logic := '0';
@@ -281,16 +281,17 @@ begin
 --		slave_miso => 'Z'
 
 	);
-	spi_slave0 : entity work.spi_slave
-	Port map( 
-		clk => clk2,
-		SCK => spi_clk,
-		MOSI => spi_mosi,
-		MISO => spi_miso,
-		SSEL => spi_csn,
-		in_port => slave_in,
-		out_port => slave_out
-	);
+	-- uncomment spi_slave0 to loopback spi_master
+--	spi_slave0 : entity work.spi_slave
+--	Port map( 
+--		clk => clk2,
+--		SCK => spi_clk,
+--		MOSI => spi_mosi,
+--		MISO => spi_miso,
+--		SSEL => spi_csn,
+--		in_port => slave_in,
+--		out_port => slave_out
+--	);
 	leds <= slave_out(3 downto 0);
 --	slave_in <= x"5" & buttons;
 --	slave_in <= x"55";
@@ -299,4 +300,23 @@ begin
 --	spi_mosi <= w1a(1);
 --	spi_clk <= w1a(2);
 --	spi_csn <= w1a(3);
+
+	--microSDwing
+--0 not used in SPI
+--1 MISO
+--2 SCK
+--3 MOSI
+--4 CSN
+--	w2c(9) <= 'Z';
+	spi_miso <= w2c(9);
+	w2c(10) <= spi_clk;
+	w2c(11) <= spi_mosi;
+	w2c(12) <= spi_csn;
+
+	w2c(7) <= '0';
+	w2c(6) <= spi_csn;
+	w2c(4) <= spi_mosi;
+	w2c(2) <= spi_clk;
+	w2c(0) <= spi_miso;
+
 end Behavioral;
